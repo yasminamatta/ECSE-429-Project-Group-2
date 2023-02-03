@@ -17,6 +17,7 @@ public class APICall {
     public Response post(String url, String contentType, JSONObject jsonBody) {
         OkHttpClient client = new OkHttpClient();
         Response response = null;
+        url = "http://localhost:4567/" + url;
 
         MediaType JSON = MediaType.parse("application/" + contentType + "; charset=utf-8");
         RequestBody body = RequestBody.create(JSON, jsonBody.toString());
@@ -37,6 +38,25 @@ public class APICall {
         return response;
     }
 
+    public Response get(String url, String contentType) {
+        OkHttpClient client = new OkHttpClient();
+        Response response = null;
+        url = "http://localhost:4567/" + url;
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("content-type", "application/" + contentType + "; charset=utf-8")
+                .build();
+
+        try {
+            response = client.newCall(request).execute();
+        } catch (IOException e) {
+            return null;
+        }
+
+
+        return response;
+    }
 
 
 }
