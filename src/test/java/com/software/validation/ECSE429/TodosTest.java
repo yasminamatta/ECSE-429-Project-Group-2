@@ -66,10 +66,26 @@ public class TodosTest {
         try {
             JSONParser parser = new JSONParser();
             JSONObject json = (JSONObject) parser.parse(responsePost);
-            Assert.assertEquals("mcgill", json.get("title"));
-            System.out.println("title == mcgill - TEST PASSED");
-            Assert.assertEquals("okhttp", json.get("description"));
-            System.out.println("description == okhttp - TEST PASSED");
+
+
+            Response size = ap.get("todos/"+json.get("id"), "json");
+            JSONParser parserResponse = new JSONParser();
+            JSONObject jsonResponse = null;
+            try {
+                jsonResponse = (JSONObject) parserResponse.parse(size.body().string());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+
+            Assert.assertEquals("mcgill", ((JSONObject)(((JSONArray)jsonResponse.get("todos")).get(0))).get("title"));
+            System.out.println("title == " + ((JSONObject)(((JSONArray)jsonResponse.get("todos")).get(0))).get("title") + " - TEST PASSED");
+            Assert.assertEquals("okhttp", ((JSONObject)(((JSONArray)jsonResponse.get("todos")).get(0))).get("description"));
+            System.out.println("description == " + ((JSONObject)(((JSONArray)jsonResponse.get("todos")).get(0))).get("description") + " - TEST PASSED");
+            Assert.assertEquals("false", ((JSONObject)(((JSONArray)jsonResponse.get("todos")).get(0))).get("doneStatus"));
+            System.out.println("doneStatus == " + ((JSONObject)(((JSONArray)jsonResponse.get("todos")).get(0))).get("doneStatus") + " - TEST PASSED");
+            Assert.assertEquals(json.get("id"), ((JSONObject)(((JSONArray)jsonResponse.get("todos")).get(0))).get("id"));
+            System.out.println("id == " + ((JSONObject)(((JSONArray)jsonResponse.get("todos")).get(0))).get("id") + " - TEST PASSED");
             int code = response.code();
             Assert.assertTrue(Arrays.asList(successCodes).contains(code));
             System.out.println("status code == " + code + " - TEST PASSED");
