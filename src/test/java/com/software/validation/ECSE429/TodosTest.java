@@ -1,6 +1,7 @@
 package com.software.validation.ECSE429;
 
 import com.software.validation.ECSE429.api.APICall;
+import okhttp3.Headers;
 import okhttp3.Response;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -22,11 +23,41 @@ public class TodosTest {
     public static void main(String[] args) {
 
         TodosTest td = new TodosTest();
-        td.test();
+        td.post();
     }
 
     @Test
-    public void test() {
+    public void get() {
+        APICall ap = new APICall();
+        Response response = ap.get("todos", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        int size = ((JSONArray)(json.get("todos"))).size();
+        Assert.assertEquals(2, size);
+        System.out.println("Size: " + size + " - TEST PASSED");
+
+    }
+
+    @Test
+    public void head() {
+        APICall api = new APICall();
+        Response response = api.head("todos", "json");
+        Headers headers = response.headers();
+        Assert.assertEquals(4, headers.size());
+        System.out.println("Size: " + headers.size() + " - TEST PASSED");
+        Assert.assertEquals("application/json", headers.get("Content-Type").toString());
+        System.out.println("Content-Type: " + headers.get("Content-Type").toString() + " - TEST PASSED");
+
+    }
+
+    @Test
+    public void post() {
         APICall ap = new APICall();
         Thread t1 = new Thread(new Runnable() {
             @Override
