@@ -44,6 +44,30 @@ public class APICall {
     }
 
 
+    public Response delete(String url, String contentType) {
+        OkHttpClient client = new OkHttpClient();
+        Response response = null;
+        url = "http://localhost:4567/" + url;
+
+        MediaType JSON = MediaType.parse("application/" + contentType + "; charset=utf-8");
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("content-type", "application/" + contentType + "; charset=utf-8")
+                .delete()
+                .build();
+
+        try {
+            response = client.newCall(request).execute();
+        } catch (IOException e) {
+            return null;
+        }
+
+
+        return response;
+    }
+
+
     public Response put(String url, String contentType, JSONObject jsonBody) {
         OkHttpClient client = new OkHttpClient();
         Response response = null;
