@@ -260,6 +260,159 @@ public class CategoriesTest {
         System.out.println("POST categories/:id -- TEST PASSED");
     }
 
+    @Test
+    public void putCategoryWithId() {
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                categories[0] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+
+        }
+
+        JSONObject js = new JSONObject();
+        js.put("title", "Yard work");
+        js.put("description", "plant trees");
+        Response response = ap.put("categories/2", "json", js); // using id = 2. Should completely replace the current entry with ID=2.
+
+        String responsePost = null;
+        try {
+            responsePost = response.body().string();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            JSONParser parser = new JSONParser();
+            JSONObject json = (JSONObject) parser.parse(responsePost);
+
+            Response res = ap.get("categories/"+json.get("id"), "json");
+            JSONParser parserResponse = new JSONParser();
+            JSONObject jsonResponse = null;
+            try {
+                jsonResponse = (JSONObject) parserResponse.parse(res.body().string());
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // check if the body matches with input
+            Assert.assertEquals("Yard work", ((JSONObject)(((JSONArray)jsonResponse.get("categories")).get(0))).get("title"));
+            Assert.assertEquals("plant trees", ((JSONObject)(((JSONArray)jsonResponse.get("categories")).get(0))).get("description"));
+            Assert.assertEquals(json.get("id"), ((JSONObject)(((JSONArray)jsonResponse.get("categories")).get(0))).get("id"));
+            int code = response.code();
+            Assert.assertTrue(Arrays.asList(successCodes).contains(code));
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                categories[1] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+
+        }
+
+        Assert.assertEquals(0, Math.abs(categories[1] - categories[0])); // no new entry should be created. Only the body should completely change.
+        System.out.println("PUT categories/:id -- TEST PASSED");
+    }
+
+    @Test
+    public void deleteCategoryWithId() {
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                categories[0] = ((JSONArray)(json.get("categories"))).size(); // getting number of categories present before 1 is deleted
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+
+        }
+
+        Response response = ap.delete("categories/1", "json"); // delete category with ID=1
+
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // Ensure HTML response is ok
+
+        Response retrieveDeleted = ap.get("categories/1", "json"); // now try to get the same category of ID=1, although it's deleted.
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(retrieveDeleted.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        String error = (String) ((((JSONArray)json.get("errorMessages")).get(0)));
+        Assert.assertEquals("Could not find an instance with categories/1", error);
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                categories[1] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+
+        }
+        Assert.assertEquals(1, Math.abs(categories[1] - categories[0])); // the difference should be 1, between what the number of initial categories and the current number
+        System.out.println("DELETE categories/:id -- TEST PASSED");
+    }
 
 
 
