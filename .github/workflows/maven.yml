@@ -34,5 +34,6 @@ jobs:
 
     - name: Run backend
       run: |
-        java -jar runTodoManagerRestAPI-1.5.5.jar
+        java -jar runTodoManagerRestAPI-1.5.5.jar &
+        sleep 7
         mvn test
