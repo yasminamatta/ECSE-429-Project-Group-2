@@ -339,6 +339,10 @@ public class TodosTest {
         JSONObject js = new JSONObject();
         js.put("title", "shred papers");
         js.put("description", "shred each paper into 100 pieces");
+        js.put("doneStatus", false);
+        JSONObject tasksof = new JSONObject();
+        tasksof.put("id", "1");
+        js.put("tasksof", tasksof);
         Response response = ap.put("todos/2", "json", js);
 
         String responsePost = null;
@@ -434,14 +438,14 @@ public class TodosTest {
         }
 
 
-        Response response = ap.delete("todos/2", "json");
+        Response response = ap.delete("todos/1", "json");
 
         int code = response.code();
         Assert.assertTrue(Arrays.asList(successCodes).contains(code));
 
 
 
-        Response retrieveDeleted = ap.get("todos/2", "json");
+        Response retrieveDeleted = ap.get("todos/1", "json");
         JSONParser parser = new JSONParser();
         JSONObject json = null;
         try {
@@ -451,7 +455,7 @@ public class TodosTest {
         }
 
         String error = (String) ((((JSONArray)json.get("errorMessages")).get(0)));
-        Assert.assertEquals("Could not find an instance with todos/2", error);
+        Assert.assertEquals("Could not find an instance with todos/1", error);
 
 
 
@@ -520,7 +524,7 @@ public class TodosTest {
             for (Object obj : tasks) {
                 JSONObject JSONobj = (JSONObject) obj;
                 String id = (String) JSONobj.get("id");
-                if(id.equals("1")){
+                if(id.equals("2")){
                     map.set(counter, "true");
                     counter++;
                     break;
