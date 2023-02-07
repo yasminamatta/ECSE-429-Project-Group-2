@@ -165,7 +165,7 @@ public class TodosTest {
     @Test
     public void getId() {
         APICall ap = new APICall();
-        Response response = ap.get("todos/1", "json");
+        Response response = ap.get("todos/2", "json");
         JSONParser parser = new JSONParser();
         JSONObject json = null;
         try {
@@ -183,8 +183,8 @@ public class TodosTest {
         String doneStatus = (String) ( (JSONObject) ((JSONArray)(json.get("todos"))).get(0)).get("doneStatus");
         String description = (String) ( (JSONObject) ((JSONArray)(json.get("todos"))).get(0)).get("description");
 
-        Assert.assertEquals("1", id);
-        Assert.assertEquals("scan paperwork", title);
+        Assert.assertEquals("2", id);
+        Assert.assertEquals("file paperwork", title);
         Assert.assertEquals("false", doneStatus);
         Assert.assertEquals("", description);
         int code = response.code();
@@ -490,7 +490,7 @@ public class TodosTest {
 
 
         APICall ap = new APICall();
-        Response response = ap.get("todos/1/tasksof", "json");
+        Response response = ap.get("todos/2/tasksof", "json");
         JSONParser parser = new JSONParser();
         JSONObject json = null;
         try {
