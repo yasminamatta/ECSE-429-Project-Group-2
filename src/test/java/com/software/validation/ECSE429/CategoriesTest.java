@@ -290,7 +290,7 @@ public class CategoriesTest {
         JSONObject js = new JSONObject();
         js.put("title", "Yard work");
         js.put("description", "plant trees");
-        Response response = ap.put("categories/2", "json", js); // using id = 2. Should completely replace the current entry with ID=2.
+        Response response = ap.put("categories/3", "json", js); // using id = 3. Should completely replace the current entry with ID=3.
 
         String responsePost = null;
         try {
@@ -374,12 +374,12 @@ public class CategoriesTest {
 
         }
 
-        Response response = ap.delete("categories/1", "json"); // delete category with ID=1
+        Response response = ap.delete("categories/2", "json"); // delete category with ID=2
 
         int code = response.code();
         Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // Ensure HTML response is ok
 
-        Response retrieveDeleted = ap.get("categories/1", "json"); // now try to get the same category of ID=1, although it's deleted.
+        Response retrieveDeleted = ap.get("categories/2", "json"); // now try to get the same category of ID=2, although it's deleted.
         JSONParser parser = new JSONParser();
         JSONObject json = null;
         try {
@@ -389,7 +389,7 @@ public class CategoriesTest {
         }
 
         String error = (String) ((((JSONArray)json.get("errorMessages")).get(0)));
-        Assert.assertEquals("Could not find an instance with categories/1", error);
+        Assert.assertEquals("Could not find an instance with categories/2", error);
 
         Thread t2 = new Thread(new Runnable() {
             @Override
@@ -439,7 +439,7 @@ public class CategoriesTest {
     @Test
     public void headProjectsRelatedToCategory(){
         APICall api = new APICall();
-        Response response = api.head("categories/2/projects", "json"); // querying projects related to category with ID=2.
+        Response response = api.head("categories/1/projects", "json"); // querying projects related to category with ID=1.
         Headers headers = response.headers();
         Assert.assertEquals(4, headers.size()); // expect 4 headers regardless
         Assert.assertEquals("application/json", headers.get("Content-Type").toString());
