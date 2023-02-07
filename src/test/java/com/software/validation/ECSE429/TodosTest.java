@@ -13,6 +13,7 @@ import org.junit.Assert;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
 
 
@@ -21,6 +22,7 @@ public class TodosTest {
 
     Integer successCodes[] = {200, 201};
     int todos[] = {0, 0};
+
 
 
 
@@ -432,14 +434,14 @@ public class TodosTest {
         }
 
 
-        Response response = ap.delete("todos/1", "json");
+        Response response = ap.delete("todos/2", "json");
 
         int code = response.code();
         Assert.assertTrue(Arrays.asList(successCodes).contains(code));
 
 
 
-        Response retrieveDeleted = ap.get("todos/1", "json");
+        Response retrieveDeleted = ap.get("todos/2", "json");
         JSONParser parser = new JSONParser();
         JSONObject json = null;
         try {
@@ -449,7 +451,7 @@ public class TodosTest {
         }
 
         String error = (String) ((((JSONArray)json.get("errorMessages")).get(0)));
-        Assert.assertEquals("Could not find an instance with todos/1", error);
+        Assert.assertEquals("Could not find an instance with todos/2", error);
 
 
 
@@ -479,5 +481,345 @@ public class TodosTest {
         System.out.println("DELETE todos/:id -- TEST PASSED");
 
     }
+
+    @Test
+    public void getIdTasksOf() {
+
+        int counter = 0;
+        boolean related = false;
+
+
+        APICall ap = new APICall();
+        Response response = ap.get("todos/1/tasksof", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        int size = ((JSONArray)(json.get("projects"))).size();
+        Assert.assertEquals(1, size);
+        //System.out.println("Size: " + size + " - TEST PASSED");
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code));
+
+        int mapSize = ((JSONArray)(json.get("projects"))).size();
+        List<String> map = new ArrayList<>();
+        for(int i = 0; i < mapSize; i++) {
+            map.add("false");
+        }
+
+        for (Object projectArray : ((JSONArray)(json.get("projects")))) {
+
+            JSONObject projectObject = (JSONObject) projectArray;
+
+            JSONArray tasks = (JSONArray) projectObject.get("tasks");
+
+            for (Object obj : tasks) {
+                JSONObject JSONobj = (JSONObject) obj;
+                String id = (String) JSONobj.get("id");
+                if(id.equals("1")){
+                    map.set(counter, "true");
+                    counter++;
+                    break;
+                }
+            }
+
+        }
+
+        for(String flag : map) {
+            if(flag.equalsIgnoreCase("false")) {
+                related = false;
+                break;
+            } else {
+                related = true;
+            }
+        }
+
+        Assert.assertTrue(related);
+
+        System.out.println("GET todos/:id/tasksof -- TEST PASSED");
+
+    }
+
+    @Test
+    public void headIdTasksOf() {
+        APICall api = new APICall();
+        Response response = api.head("todos/1/tasksof", "json");
+        Headers headers = response.headers();
+        Assert.assertEquals(4, headers.size());
+        //System.out.println("Size: " + headers.size() + " - TEST PASSED");
+        Assert.assertEquals("application/json", headers.get("Content-Type").toString());
+        //System.out.println("Content-Type: " + headers.get("Content-Type").toString() + " - TEST PASSED");
+
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code));
+
+        System.out.println("HEAD todos/:id/tasksof -- TEST PASSED");
+    }
+
+
+    @Test
+    public void postIdTasksOf() {
+        APICall ap = new APICall();
+        String[] newTodoId = {""};
+        int counter = 0;
+        boolean related = false;
+
+
+
+        // create dummy object first
+        Thread t3 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject js = new JSONObject();
+                js.put("title", "scan lab");
+                js.put("description", "scan every lab");
+                Response response = ap.post("todos", "json", js);
+
+                String responsePost = null;
+                try {
+                    responsePost = response.body().string();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(responsePost);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                newTodoId[0] = (String) json.get("id");
+
+
+
+            }
+        });
+
+        t3.start();
+        try {
+            t3.join();
+        } catch (Exception e) {
+
+        }
+
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                todos[0] = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+
+        }
+
+
+        Thread t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject relationBody = new JSONObject();
+                relationBody.put("id", "1");
+
+                Response res = ap.post("todos/" + newTodoId[0] + "/tasksof", "json", relationBody);
+
+                int code = res.code();
+                Assert.assertTrue(Arrays.asList(successCodes).contains(code));
+            }
+        });
+
+        t4.start();
+        try {
+            t4.join();
+        } catch (Exception e) {
+
+        }
+
+
+
+        Response response = ap.get("todos/" + newTodoId[0] + "/tasksof", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        int mapSize = ((JSONArray)(json.get("projects"))).size();
+        List<String> map = new ArrayList<>();
+        for(int i = 0; i < mapSize; i++) {
+            map.add("false");
+        }
+
+        for (Object projectArray : ((JSONArray)(json.get("projects")))) {
+
+            JSONObject projectObject = (JSONObject) projectArray;
+
+            JSONArray tasks = (JSONArray) projectObject.get("tasks");
+
+            for (Object obj : tasks) {
+                JSONObject JSONobj = (JSONObject) obj;
+                String id = (String) JSONobj.get("id");
+                if(id.equals(newTodoId[0])){
+                    map.set(counter, "true");
+                    counter++;
+                    break;
+                }
+            }
+
+        }
+
+        for(String flag : map) {
+            if(flag.equalsIgnoreCase("false")) {
+                related = false;
+                break;
+            } else {
+                related = true;
+            }
+        }
+        Assert.assertTrue(related);
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                todos[1] = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+
+        }
+
+        Assert.assertEquals(0, Math.abs(todos[1] - todos[0]));
+        //System.out.println("only " + Math.abs(todos[1] - todos[0]) + " todo created - TEST PASSED");
+        System.out.println("POST todos/:id/tasksof -- TEST PASSED");
+
+    }
+
+
+    @Test
+    public void deleteIdTasksOfId() {
+        APICall ap = new APICall();
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                todos[0] = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+
+        }
+
+
+        Thread t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Response res = ap.delete("todos/1/tasksof/1", "json");
+
+                int code = res.code();
+                Assert.assertTrue(Arrays.asList(successCodes).contains(code));
+            }
+        });
+
+        t4.start();
+        try {
+            t4.join();
+        } catch (Exception e) {
+
+        }
+
+
+
+        Response response = ap.get("todos/1/tasksof", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for(Object allRelatedProjects : ((JSONArray)(json.get("projects")))) {
+
+            JSONObject eachProject = (JSONObject) allRelatedProjects;
+            String projectId = (String) eachProject.get("id");
+
+            Assert.assertNotEquals("1", projectId);
+        }
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                todos[1] = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+
+        }
+
+        Assert.assertEquals(0, Math.abs(todos[1] - todos[0]));
+        //System.out.println("only " + Math.abs(todos[1] - todos[0]) + " todo created - TEST PASSED");
+        System.out.println("DELETE todos/:id/tasksof/:id -- TEST PASSED");
+
+    }
+
+
+
+
 
 }
