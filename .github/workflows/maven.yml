@@ -17,9 +17,7 @@ on:
 jobs:
   build:
 
-    runs-on: ubuntu-latest
-    strategy:
-      max-parallel: 20
+    runs-on: windows-2019
 
     steps:
     - uses: actions/checkout@v3
@@ -29,12 +27,11 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
-        wait-on: http://localhost:4567
     - name: Build with Maven
-      run: mvn -B package --file pom.xml
+      run: mvn -B package --file pom.xml -DskipTests
 
     - name: Run backend
       run: |
         java -jar runTodoManagerRestAPI-1.5.5.jar &
-        sleep 5 &&
+        sleep 5
         mvn test
