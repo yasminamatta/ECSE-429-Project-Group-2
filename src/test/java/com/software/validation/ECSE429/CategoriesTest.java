@@ -137,7 +137,7 @@ public class CategoriesTest {
     @Test
     public void getCategoryWithId() {
         APICall ap = new APICall();
-        Response response = ap.get("categories/2", "json"); // ID present in URL
+        Response response = ap.get("categories/1", "json"); // ID present in URL
         JSONParser parser = new JSONParser();
         JSONObject json = null;
         try {
@@ -155,8 +155,8 @@ public class CategoriesTest {
         String description = (String) ( (JSONObject) ((JSONArray)(json.get("categories"))).get(0)).get("description");
 
         // check if the body matches the query
-        Assert.assertEquals("2", id);
-        Assert.assertEquals("Home", title);
+        Assert.assertEquals("1", id);
+        Assert.assertEquals("Office", title);
         Assert.assertEquals("", description);
         int code = response.code();
         Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // check if the HTML response code is a success or not
@@ -166,7 +166,7 @@ public class CategoriesTest {
     @Test
     public void headCategoryWithId() {
         APICall api = new APICall();
-        Response response = api.head("categories/2", "json"); // query done with ID in URL
+        Response response = api.head("categories/1", "json"); // query done with ID in URL
         Headers headers = response.headers();
         Assert.assertEquals(4, headers.size()); // expect 4 headers regardless
         Assert.assertEquals("application/json", headers.get("Content-Type").toString());
@@ -288,9 +288,9 @@ public class CategoriesTest {
         }
 
         JSONObject js = new JSONObject();
-        js.put("title", "Yard work");
-        js.put("description", "plant trees");
-        Response response = ap.put("categories/3", "json", js); // using id = 3. Should completely replace the current entry with ID=3.
+        js.put("title", "Office");
+        js.put("description", "");
+        Response response = ap.put("categories/1", "json", js); // using id = 3. Should completely replace the current entry with ID=3.
 
         String responsePost = null;
         try {
@@ -313,8 +313,8 @@ public class CategoriesTest {
             }
 
             // check if the body matches with input
-            Assert.assertEquals("Yard work", ((JSONObject)(((JSONArray)jsonResponse.get("categories")).get(0))).get("title"));
-            Assert.assertEquals("plant trees", ((JSONObject)(((JSONArray)jsonResponse.get("categories")).get(0))).get("description"));
+            Assert.assertEquals("Office", ((JSONObject)(((JSONArray)jsonResponse.get("categories")).get(0))).get("title"));
+            Assert.assertEquals("", ((JSONObject)(((JSONArray)jsonResponse.get("categories")).get(0))).get("description"));
             Assert.assertEquals(json.get("id"), ((JSONObject)(((JSONArray)jsonResponse.get("categories")).get(0))).get("id"));
             int code = response.code();
             Assert.assertTrue(Arrays.asList(successCodes).contains(code));
@@ -462,8 +462,8 @@ public class CategoriesTest {
             @Override
             public void run() {
                 JSONObject js = new JSONObject();
-                js.put("title", "School work");
-                js.put("description", "submit all assignments");
+                js.put("title", "Office");
+                js.put("description", "");
                 Response response = ap.post("categories/1", "json", js); // creating a relationship between category 1 and project 1
 
                 String responsePost = null;
