@@ -36,4 +36,4 @@ jobs:
       run: |
         java -jar runTodoManagerRestAPI-1.5.5.jar &
         sleep 7
-        mvn test -Dtest="TodosTest"
+        mvn test
