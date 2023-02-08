@@ -823,6 +823,151 @@ public class TodosTest {
     }
 
 
+    @Test
+    public void getIdCategories() {
+
+
+        APICall ap = new APICall();
+        Response response = ap.get("todos/1/categories", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code));
+        int size = ((JSONArray)(json.get("categories"))).size();
+        Assert.assertEquals(1, size);
+
+
+        Response response2 = ap.get("todos/2/categories", "json");
+        JSONParser parser2 = new JSONParser();
+        JSONObject json2 = null;
+        try {
+            json2 = (JSONObject) parser2.parse(response2.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        int code2 = response2.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code2));
+        int size2 = ((JSONArray)(json2.get("categories"))).size();
+        Assert.assertEquals(0, size2);
+
+
+        System.out.println("GET todos/:id/categories -- TEST PASSED");
+
+    }
+
+
+    @Test
+    public void headIdCategories() {
+
+
+        APICall ap = new APICall();
+        Response response = ap.head("todos/1/categories", "json");
+        Headers headers = response.headers();
+        Assert.assertEquals(4, headers.size());
+
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code));
+
+
+        System.out.println("HEAD todos/:id/categories -- TEST PASSED");
+
+    }
+
+
+    @Test
+    public void postIdCategories() {
+        APICall ap = new APICall();
+        String[] newTodoId = {""};
+        int counter = 0;
+        boolean related = false;
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("todos/2/categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Assert.assertEquals(0, ((JSONArray)(json.get("categories"))).size());
+
+
+                Response responseOfTodos = ap.get("todos", "json");
+                JSONParser parserOfTodos = new JSONParser();
+                JSONObject jsonOfTodos = null;
+                try {
+                    jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                todos[0] = ((JSONArray)(jsonOfTodos.get("todos"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+
+        }
+
+        JSONObject js = new JSONObject();
+        js.put("id", "1");
+        Response response = ap.post("todos/2/categories", "json", js);
+
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code));
+
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("todos/2/categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                Assert.assertEquals(1, ((JSONArray)(json.get("categories"))).size());
+
+
+                Response responseOfTodos = ap.get("todos", "json");
+                JSONParser parserOfTodos = new JSONParser();
+                JSONObject jsonOfTodos = null;
+                try {
+                    jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                todos[1] = ((JSONArray)(jsonOfTodos.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+
+        }
+
+
+        Assert.assertEquals(0, Math.abs(todos[1] - todos[0]));
+        //System.out.println("only " + Math.abs(todos[1] - todos[0]) + " todo created - TEST PASSED");
+        System.out.println("POST todos/:id/categories -- TEST PASSED");
+
+    }
 
 
 
