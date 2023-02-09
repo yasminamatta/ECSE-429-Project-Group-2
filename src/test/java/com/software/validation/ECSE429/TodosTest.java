@@ -44,7 +44,7 @@ public class TodosTest {
     public static void resetEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec("npx kill-port 4567");
+            Process pr = rt.exec("npm.cmd kill-port 4567");
             System.out.println("Resetting environment");
             Thread.sleep(5000);
         } catch (Exception e) {
