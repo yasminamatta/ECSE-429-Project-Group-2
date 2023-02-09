@@ -12,13 +12,18 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 import org.junit.Assert;
-import org.springframework.boot.test.context.SpringBootTest;
+import org.junit.jupiter.api.*;
 
+
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProjectTest {
-    
+
+
+
     @Test
+    @Order(1)
     public void getProject() {
         APICall apiCall = new APICall();
         Response response = apiCall.get("projects", "json");
@@ -32,8 +37,9 @@ public class ProjectTest {
         int size = ((JSONArray) jsonObject.get("projects")).size();
         Assert.assertEquals(1, size);
     }
-    
+
     @Test
+    @Order(2)
     public void headProject() {
         APICall apiCall = new APICall();
         Response response = apiCall.head("/projects", "json");
@@ -44,13 +50,14 @@ public class ProjectTest {
     }
 
     @Test
+    @Order(3)
     public void postProject() {
         APICall apiCall = new APICall();
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("title", "test");
         jsonObject.put("description", "test");
         Response response = apiCall.post("projects", "json", jsonObject);
-       
+
         JSONParser jsonParser = new JSONParser();
         String responsePost = null;
         try {
@@ -68,6 +75,7 @@ public class ProjectTest {
     }
 
     @Test
+    @Order(4)
     public void getProjectById() {
         APICall apiCall = new APICall();
         Response response = apiCall.get("projects/1", "json");
@@ -82,7 +90,9 @@ public class ProjectTest {
         Assert.assertEquals("",
                 ((JSONObject) ((JSONArray) (jsonObject.get("projects"))).get(0)).get("description"));
     }
-    
+
+    @Test
+    @Order(5)
     public void headProjectById() {
         APICall apiCall = new APICall();
         Response response = apiCall.head("/projects/1", "json");
@@ -93,6 +103,7 @@ public class ProjectTest {
     }
 
     @Test
+    @Order(6)
     public void postProjectById() {
         APICall apiCall = new APICall();
         JSONObject jsonBody = new JSONObject();
@@ -112,8 +123,9 @@ public class ProjectTest {
         assertEquals(2, ((JSONArray) jsonObject.get("tasks")).size());
         assertEquals(200, response.code());
     }
-    
+
     @Test
+    @Order(7)
     public void putProjectById() {
         APICall apiCall = new APICall();
         JSONObject jsonBody = new JSONObject();
@@ -133,6 +145,7 @@ public class ProjectTest {
     }
 
     @Test
+    @Order(8)
     public void deleteProjectById() {
         APICall apiCall = new APICall();
         Response response = apiCall.delete("projects/2", "json");
@@ -157,7 +170,8 @@ public class ProjectTest {
     }
 
     @Test
-    public void getProjectCategoriesById() {
+    @Order(9)
+    public void testJ_getProjectCategoriesById() {
         APICall apiCall = new APICall();
         Response response = apiCall.get("projects/1/categories", "json");
         JSONParser jsonParser = new JSONParser();
@@ -173,7 +187,8 @@ public class ProjectTest {
     }
 
     @Test
-    public void headProjectCategoriesById() {
+    @Order(10)
+    public void testK_headProjectCategoriesById() {
         APICall apiCall = new APICall();
         Response response = apiCall.head("/projects/1/categories", "json");
         Headers headers = response.headers();
@@ -183,7 +198,8 @@ public class ProjectTest {
     }
 
     @Test
-    public void postProjectCategoriesById() {
+    @Order(11)
+    public void testL_postProjectCategoriesById() {
         APICall apiCall = new APICall();
         JSONObject jsonBody = new JSONObject();
         jsonBody.put("id", "1");
@@ -196,7 +212,7 @@ public class ProjectTest {
             e.printStackTrace();
         }
 
-       
+
         assertEquals(201, response.code());
         // assertEquals("1", ((JSONObject)((JSONArray) jsonObject.get("categories")).get(0)).get("id"));
         Response response1 = apiCall.get("projects/1/categories", "json");
@@ -211,6 +227,7 @@ public class ProjectTest {
     }
 
     @Test
+    @Order(12)
     public void deleteProjectCategoriesById() {
         APICall apiCall = new APICall();
         Response response = apiCall.delete("projects/1/categories/1", "json");
@@ -235,6 +252,7 @@ public class ProjectTest {
     }
 
     @Test
+    @Order(13)
     public void postProjectByIdTasks() {
         APICall apiCall = new APICall();
         JSONObject jsonBody = new JSONObject();
@@ -259,8 +277,9 @@ public class ProjectTest {
         }
         assertEquals(1, ((JSONArray) jsonObject1.get("todos")).size());
     }
-    
+
     @Test
+    @Order(14)
     public void getProjectByIdTasks() {
         APICall apiCall = new APICall();
         Response response = apiCall.get("projects/1/tasks", "json");
@@ -277,6 +296,7 @@ public class ProjectTest {
     }
 
     @Test
+    @Order(15)
     public void headProjectByIdTasks() {
         APICall apiCall = new APICall();
         Response response = apiCall.head("/projects/1/tasks", "json");
@@ -287,6 +307,7 @@ public class ProjectTest {
     }
 
     @Test
+    @Order(16)
     public void deleteProjectByIdTasks() {
         APICall apiCall = new APICall();
         Response response = apiCall.delete("projects/1/tasks/2", "json");
