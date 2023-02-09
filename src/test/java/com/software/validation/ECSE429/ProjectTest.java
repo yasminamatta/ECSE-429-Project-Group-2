@@ -13,14 +13,40 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.jupiter.api.Test;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.jupiter.api.*;
 
 
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProjectTest {
 
+    @BeforeClass
+    public static void setupEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be
+                                                                               // tested
+            System.out.println("Setting up environment");
+            Thread.sleep(5000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
+    @AfterClass
+    public static void resetEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("npm.cmd kill-port 4567"); // Resets the API environment once testing session is
+                                                            // complete.
+            System.out.println("Resetting environment");
+            Thread.sleep(5000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Test
     @Order(1)
