@@ -27,6 +27,10 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         cache: maven
+
+    - name: Install npm package
+      run: npm i kill-port
+
     - name: Build with Maven
       run: mvn -B package --file pom.xml -DskipTests
 
