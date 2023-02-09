@@ -32,7 +32,7 @@ public class TodosTest {
     public static void setupEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar");
+            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
             System.out.println("Setting up environment");
             Thread.sleep(5000);
         } catch (Exception e) {
@@ -44,7 +44,7 @@ public class TodosTest {
     public static void resetEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec("npx kill-port 4567");
+            Process pr = rt.exec("npx kill-port 4567"); // Resets the API environment once testing session is complete.
             System.out.println("Resetting environment");
             Thread.sleep(5000);
         } catch (Exception e) {
@@ -182,7 +182,6 @@ public class TodosTest {
 
     }
 
-
     @Test
     public void getId() {
         APICall ap = new APICall();
@@ -228,8 +227,6 @@ public class TodosTest {
         Assert.assertTrue(Arrays.asList(successCodes).contains(code));
         System.out.println("HEAD todos/:id -- TEST PASSED");
     }
-
-
 
     @Test
     public void postId() {
@@ -566,7 +563,6 @@ public class TodosTest {
         System.out.println("HEAD todos/:id/tasksof -- TEST PASSED");
     }
 
-
     @Test
     public void postIdTasksOf() {
         APICall ap = new APICall();
@@ -730,7 +726,6 @@ public class TodosTest {
 
     }
 
-
     @Test
     public void deleteIdTasksOfId() {
         APICall ap = new APICall();
@@ -822,7 +817,6 @@ public class TodosTest {
 
     }
 
-
     @Test
     public void getIdCategories() {
         APICall ap = new APICall();
@@ -843,7 +837,6 @@ public class TodosTest {
 
     }
 
-
     @Test
     public void headIdCategories() {
 
@@ -860,7 +853,6 @@ public class TodosTest {
         System.out.println("HEAD todos/:id/categories -- TEST PASSED");
 
     }
-
 
     @Test
     public void postIdCategories() {
@@ -947,7 +939,6 @@ public class TodosTest {
 
     }
 
-
     @Test
     public void deleteIdCategories() {
         APICall ap = new APICall();
@@ -1031,6 +1022,5 @@ public class TodosTest {
         System.out.println("DELETE todos/:id/categories -- TEST PASSED");
 
     }
-
 
 }

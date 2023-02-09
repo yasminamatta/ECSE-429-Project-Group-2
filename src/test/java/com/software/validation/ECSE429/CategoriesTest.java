@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.List;
 
 public class CategoriesTest {
-
     Integer successCodes[] = {200, 201}; // HTML success codes for OK and CREATE
     int categories[] = {0, 0}; // empty categories array to be used throughout the testing
 
@@ -28,7 +27,7 @@ public class CategoriesTest {
     public static void setupEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar");
+            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // ensures that the API is ready to be tested, by setting up environment
             System.out.println("Setting up environment");
             Thread.sleep(5000);
         } catch (Exception e) {
@@ -40,7 +39,7 @@ public class CategoriesTest {
     public static void resetEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec("npx kill-port 4567");
+            Process pr = rt.exec("npx kill-port 4567"); // Once the testing is complete, reset the environment
             System.out.println("Resetting environment");
             Thread.sleep(5000);
         } catch (Exception e) {
