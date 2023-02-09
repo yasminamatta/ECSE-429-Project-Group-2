@@ -9,6 +9,7 @@ import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.Assert;
 import org.junit.Test;
+import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -596,7 +597,359 @@ public class CategoriesTest {
         System.out.println("POST categories/:id/projects -- TEST PASSED");
     }
 
+    @Test
+    public void deleteProjectRelatedToCategory(){
+        // The relationship between project and category must already exist for this to work!
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                categories[0] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
 
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+
+        }
+
+        Thread t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Response res = ap.delete("categories/1/projects/1", "json"); // deleting project with id=1, which was assigned to category with id=1.
+
+                int code = res.code();
+                Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // check whether successful or not
+            }
+        });
+
+        t4.start();
+        try {
+            t4.join();
+        } catch (Exception e) {
+
+        }
+
+        Response response = ap.get("categories/1/projects", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for(Object allRelatedProjects : ((JSONArray)(json.get("projects")))) {
+
+            JSONObject eachProject = (JSONObject) allRelatedProjects;
+            String projectId = (String) eachProject.get("id");
+
+            Assert.assertNotEquals("1", projectId);
+        }
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                categories[1] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+
+        }
+
+        Assert.assertEquals(0, Math.abs(categories[1] - categories[0]));// Confirmation that no new categories were deleted
+        System.out.println("DELETE categories/:id/projects/:id -- TEST PASSED");
+    }
+
+    @Test
+    public void getTodosRelatedToCategory(){
+        APICall ap = new APICall();
+        Response response = ap.get("categories/2/todos", "json"); // Requesting all projects related to category of ID=2
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        var contents = ((JSONArray)(json.get("todos"))).size();
+        Assert.assertEquals(0, contents); // as the API initially has no relationships between projects and categories, the result is a null empty set.
+
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // check if the HTML response code is a success or not
+        System.out.println("GET categories/:id/todos -- TEST PASSED");
+    }
+
+    @Test
+    public void headTodosRelatedToCategory(){
+        APICall api = new APICall();
+        Response response = api.head("categories/1/todos", "json"); // querying projects related to category with ID=1.
+        Headers headers = response.headers();
+        Assert.assertEquals(4, headers.size()); // expect 4 headers regardless
+        Assert.assertEquals("application/json", headers.get("Content-Type").toString());
+
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // check if HTML code is ok
+
+        System.out.println("HEAD categories/:id/todos -- TEST PASSED");
+    }
+
+    @Test
+    public void postTodosRelatedToCategory(){
+        APICall ap = new APICall();
+        String[] newCategoryId = {""};
+        int counter = 0;
+        boolean related = false;
+
+        // create dummy object first
+        Thread t3 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject js = new JSONObject();
+                js.put("title", "Office");
+                js.put("description", "");
+                Response response = ap.post("categories/1", "json", js); // creating a relationship between category 1 and todo 1
+
+                String responsePost = null;
+                try {
+                    responsePost = response.body().string();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(responsePost);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                newCategoryId[0] = (String) json.get("id"); // saving the category ID for future use in cross-checking
+            }
+        });
+
+        t3.start();
+        try {
+            t3.join();
+        } catch (Exception e) {
+
+        }
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                categories[0] = ((JSONArray) (json.get("categories"))).size(); // getting the size of the categories before POST
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+
+        }
+
+        Thread t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject relationBody = new JSONObject();
+                relationBody.put("id", "1");
+
+                Response res = ap.post("categories/" + newCategoryId[0] + "/todos", "json", relationBody); // Establishing relationship using POST
+
+                int code = res.code();
+                Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // Checking that it was successfully created
+            }
+        });
+
+        t4.start();
+        try {
+            t4.join();
+        } catch (Exception e) {
+
+        }
+
+        Response response = ap.get("categories/" + newCategoryId[0] + "/todos", "json"); // Getting the todo assigned to category 1
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        int mapSize = ((JSONArray) (json.get("todos"))).size(); // Making a map to add the todos to
+        List<String> map = new ArrayList<>();
+        for (int i = 0; i < mapSize; i++) {
+            map.add("false");
+        }
+
+        for (Object projectArray : ((JSONArray) (json.get("todos")))) { // Iterating through all fields of the todo
+
+            JSONObject projectObject = (JSONObject) projectArray;
+
+            String id = (String) projectObject.get("id"); // Getting the ID of the todo which was assigned
+
+            if(id.equals(newCategoryId[0])) { // Checking that the project ID and the Category ID match. Since in this case both are 1
+                map.set(counter, "true");
+                counter++;
+                break;
+            }
+        }
+
+        for (String flag : map) {
+            if (flag.equalsIgnoreCase("false")) {
+                related = false;
+                break;
+            } else {
+                related = true;
+            }
+        }
+        Assert.assertTrue(related); // Ensures that relation exists
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                categories[1] = ((JSONArray) (json.get("categories"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+
+        }
+        Assert.assertEquals(0, Math.abs(categories[1] - categories[0]));
+        System.out.println("POST categories/:id/todos -- TEST PASSED");
+    }
+
+    @Test
+    public void deleteTodosRelatedToCategory(){
+      // relationship between a todo and a category must be established beforehand
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                categories[0] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+
+        }
+
+        Thread t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Response res = ap.delete("categories/1/todos/1", "json"); // deleting project with id=1, which was assigned to category with id=1.
+
+                int code = res.code();
+                Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // check whether successful or not
+            }
+        });
+
+        t4.start();
+        try {
+            t4.join();
+        } catch (Exception e) {
+
+        }
+
+        Response response = ap.get("categories/1/todos", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        for(Object allRelatedProjects : ((JSONArray)(json.get("todos")))) {
+
+            JSONObject eachProject = (JSONObject) allRelatedProjects;
+            String projectId = (String) eachProject.get("id");
+
+            Assert.assertNotEquals("1", projectId);
+        }
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                categories[1] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+
+        }
+
+        Assert.assertEquals(0, Math.abs(categories[1] - categories[0]));
+        System.out.println("DELETE categories/:id/projects/:id -- TEST PASSED");
+    }
 
 }
 
