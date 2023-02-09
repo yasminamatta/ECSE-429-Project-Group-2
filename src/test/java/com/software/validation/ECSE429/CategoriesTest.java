@@ -7,7 +7,9 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
+import org.junit.AfterClass;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeAll;
 
@@ -20,6 +22,32 @@ public class CategoriesTest {
 
     Integer successCodes[] = {200, 201}; // HTML success codes for OK and CREATE
     int categories[] = {0, 0}; // empty categories array to be used throughout the testing
+
+
+    @BeforeClass
+    public static void setupEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar");
+            System.out.println("Setting up environment");
+            Thread.sleep(5000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @AfterClass
+    public static void resetEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("npx kill-port 4567");
+            System.out.println("Resetting environment");
+            Thread.sleep(5000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Test
     public void getCategory() {

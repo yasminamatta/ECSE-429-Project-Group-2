@@ -35,7 +35,5 @@ jobs:
       run: mvn -B package --file pom.xml -DskipTests
 
     - name: Run backend
-      run: |
-        java -jar runTodoManagerRestAPI-1.5.5.jar &
-        sleep 5
+      run:
         mvn test
