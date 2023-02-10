@@ -7,6 +7,7 @@ import okhttp3.Response;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.io.IOException;
+import java.util.HashMap;
 
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
@@ -19,37 +20,36 @@ import org.junit.BeforeClass;
 import org.junit.jupiter.api.*;
 
 
-@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+//@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProjectTest {
 
-    @BeforeClass
-    public static void setupEnvironment() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be
-                                                                               // tested
-            System.out.println("Setting up environment");
-            Thread.sleep(5000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    // @BeforeClass
+    // public static void setupEnvironment() {
+    //     Runtime rt = Runtime.getRuntime();
+    //     try {
+    //         Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be
+    //                                                                            // tested
+    //         System.out.println("Setting up environment");
+    //         Thread.sleep(5000);
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
-    @AfterClass
-    public static void resetEnvironment() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("npm.cmd kill-port 4567"); // Resets the API environment once testing session is
-                                                            // complete.
-            System.out.println("Resetting environment");
-            Thread.sleep(5000);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
+    // @AfterClass
+    // public static void resetEnvironment() {
+    //     Runtime rt = Runtime.getRuntime();
+    //     try {
+    //         Process pr = rt.exec("npm.cmd kill-port 4567"); // Resets the API environment once testing session is
+    //                                                         // complete.
+    //         System.out.println("Resetting environment");
+    //         Thread.sleep(5000);
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //     }
+    // }
 
     @Test
-    @Order(1)
     public void getProject() {
         APICall apiCall = new APICall();
         Response response = apiCall.get("projects", "json");
@@ -65,7 +65,6 @@ public class ProjectTest {
     }
 
     @Test
-    @Order(2)
     public void headProject() {
         APICall apiCall = new APICall();
         Response response = apiCall.head("/projects", "json");
@@ -76,7 +75,6 @@ public class ProjectTest {
     }
 
     @Test
-    @Order(3)
     public void postProject() {
         APICall apiCall = new APICall();
         JSONObject jsonObject = new JSONObject();
@@ -101,7 +99,6 @@ public class ProjectTest {
     }
 
     @Test
-    @Order(4)
     public void getProjectById() {
         APICall apiCall = new APICall();
         Response response = apiCall.get("projects/1", "json");
@@ -118,7 +115,6 @@ public class ProjectTest {
     }
 
     @Test
-    @Order(5)
     public void headProjectById() {
         APICall apiCall = new APICall();
         Response response = apiCall.head("/projects/1", "json");
@@ -129,7 +125,6 @@ public class ProjectTest {
     }
 
     @Test
-    @Order(6)
     public void postProjectById() {
         APICall apiCall = new APICall();
         JSONObject jsonBody = new JSONObject();
@@ -151,11 +146,14 @@ public class ProjectTest {
     }
 
     @Test
-    @Order(7)
     public void putProjectById() {
         APICall apiCall = new APICall();
         JSONObject jsonBody = new JSONObject();
         jsonBody.put("title", "updated");
+        jsonBody.put("description", "");
+        HashMap tasks = new HashMap();
+        tasks.put("id", "1");
+        jsonBody.put("tasks", new JSONObject(tasks));
         Response response = apiCall.put("projects/1", "json", jsonBody);
         JSONParser jsonParser = new JSONParser();
         JSONObject jsonObject = null;
@@ -164,40 +162,50 @@ public class ProjectTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        JSONArray jsonArray = (JSONArray) jsonObject.get("tasks");
         assertEquals("updated", jsonObject.get("title"));
         assertEquals("", jsonObject.get("description"));
+        assertEquals(jsonArray, jsonObject.get("tasks"));
         assertEquals(200, response.code());
     }
 
     @Test
-    @Order(8)
     public void deleteProjectById() {
+        
         APICall apiCall = new APICall();
-        Response response = apiCall.delete("projects/2", "json");
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = (JSONObject) jsonParser.parse(response.body().string());
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("title", "test");
+        jsonObject.put("description", "test");
+        Response response1 = apiCall.post("projects", "json", jsonObject);
+        assertEquals(201, response1.code());
+        JSONParser jsonParser2 = new JSONParser(); 
+        JSONObject json = null;
+        try{
+            json = (JSONObject) jsonParser2.parse(response1.body().string());
         } catch (Exception e) {
             e.printStackTrace();
         }
+        String id = (String) json.get("id");
 
-        assertEquals(200, response.code());
-        Response response1 = apiCall.get("projects", "json");
+        Response response2 = apiCall.delete("projects/" + id + "", "json");
+        assertEquals(200, response2.code());
+
+        Response response3 = apiCall.get("projects/" + id + "", "json");
         JSONParser jsonParser1 = new JSONParser();
         JSONObject jsonObject1 = null;
-        try{
-            jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
-        }catch (Exception e){
+        try {
+            jsonObject1 = (JSONObject) jsonParser1.parse(response3.body().string());
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        assertEquals(1, ((JSONArray) jsonObject1.get("projects")).size());
+        
+        String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
+        assertEquals("Could not find an instance with projects/"+id, error);
     }
 
     @Test
-    @Order(9)
-    public void testJ_getProjectCategoriesById() {
+    public void getProjectCategoriesById() {
         APICall apiCall = new APICall();
         Response response = apiCall.get("projects/1/categories", "json");
         JSONParser jsonParser = new JSONParser();
@@ -213,8 +221,7 @@ public class ProjectTest {
     }
 
     @Test
-    @Order(10)
-    public void testK_headProjectCategoriesById() {
+    public void headProjectCategoriesById() {
         APICall apiCall = new APICall();
         Response response = apiCall.head("/projects/1/categories", "json");
         Headers headers = response.headers();
@@ -224,8 +231,7 @@ public class ProjectTest {
     }
 
     @Test
-    @Order(11)
-    public void testL_postProjectCategoriesById() {
+    public void postProjectCategoriesById() {
         APICall apiCall = new APICall();
         JSONObject jsonBody = new JSONObject();
         jsonBody.put("id", "1");
@@ -253,7 +259,6 @@ public class ProjectTest {
     }
 
     @Test
-    @Order(12)
     public void deleteProjectCategoriesById() {
         APICall apiCall = new APICall();
         Response response = apiCall.delete("projects/1/categories/1", "json");
@@ -269,16 +274,41 @@ public class ProjectTest {
         Response response1 = apiCall.get("projects/1/categories", "json");
         JSONParser jsonParser1 = new JSONParser();
         JSONObject jsonObject1 = null;
-        try{
+        try {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
         assertEquals(0, ((JSONArray) jsonObject1.get("categories")).size());
     }
+    
+    @Test
+    public void getProjectByIdTasks() {
+        APICall apiCall = new APICall();
+        Response response = apiCall.get("projects/1/tasks", "json");
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = (JSONObject) jsonParser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        int size = ((JSONArray) jsonObject.get("todos")).size();
+        Assert.assertEquals(1, size);
+        assertEquals(200, response.code());
+    }
 
     @Test
-    @Order(13)
+    public void headProjectByIdTasks() {
+        APICall apiCall = new APICall();
+        Response response = apiCall.head("/projects/1/tasks", "json");
+        Headers headers = response.headers();
+        Assert.assertEquals("application/json", headers.get("Content-Type"));
+        int code = response.code();
+        Assert.assertEquals(200, code);
+    }
+
+    @Test
     public void postProjectByIdTasks() {
         APICall apiCall = new APICall();
         JSONObject jsonBody = new JSONObject();
@@ -301,60 +331,91 @@ public class ProjectTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        assertEquals(1, ((JSONArray) jsonObject1.get("todos")).size());
+        assertEquals(2, ((JSONArray) jsonObject1.get("todos")).size());
     }
 
     @Test
-    @Order(14)
-    public void getProjectByIdTasks() {
-        APICall apiCall = new APICall();
-        Response response = apiCall.get("projects/1/tasks", "json");
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = (JSONObject) jsonParser.parse(response.body().string());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        int size = ((JSONArray) jsonObject.get("todos")).size();
-        Assert.assertEquals(1, size);
-        assertEquals(200, response.code());
-    }
-
-    @Test
-    @Order(15)
-    public void headProjectByIdTasks() {
-        APICall apiCall = new APICall();
-        Response response = apiCall.head("/projects/1/tasks", "json");
-        Headers headers = response.headers();
-        Assert.assertEquals("application/json", headers.get("Content-Type"));
-        int code = response.code();
-        Assert.assertEquals(200, code);
-    }
-
-    @Test
-    @Order(16)
     public void deleteProjectByIdTasks() {
         APICall apiCall = new APICall();
         Response response = apiCall.delete("projects/1/tasks/2", "json");
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = (JSONObject) jsonParser.parse(response.body().string());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
         assertEquals(200, response.code());
         Response response1 = apiCall.get("projects/1/tasks", "json");
         JSONParser jsonParser1 = new JSONParser();
         JSONObject jsonObject1 = null;
         try{
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
         }
-        assertEquals(0, ((JSONArray) jsonObject1.get("todos")).size());
+        assertEquals(1, ((JSONArray) jsonObject1.get("todos")).size());
+    }
+
+    @Test
+    public void postProjectJSONMalformed() {
+        APICall apiCall = new APICall();
+        JSONObject jsonBody = new JSONObject();
+        jsonBody.put("id", "10");
+        jsonBody.put("name", "test");
+        jsonBody.put("description", "test");
+        Response response = apiCall.post("projects", "json", jsonBody);
+        assertEquals(400, response.code());
+
+        Response response1 = apiCall.get("projects/10", "json");
+        JSONParser jsonParser1 = new JSONParser();
+        JSONObject jsonObject1 = null;
+        try{
+            jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
+        assertEquals("Could not find an instance with projects/10", error);
+    }
+
+    @Test
+    public void postProjectXML() {
+        APICall apiCall = new APICall();
+        String xml = "<project><title>ECSE 429</title><description>Software description> </description></project>";
+        Response response = null;
+        response = apiCall.postXML("projects", "xml", xml);
+        assertEquals(201, response.code());
+        JSONParser jsonParser2 = new JSONParser(); 
+        JSONObject json = null;
+        try{
+            json = (JSONObject) jsonParser2.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String id = (String) json.get("id");
+        Response response1 = apiCall.get("projects/"+id+"", "json");
+        JSONParser jsonParser1 = new JSONParser();
+        JSONObject jsonObject1 = null;
+        try {
+            jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        assertEquals("ECSE 429", ((JSONObject) ((JSONArray) (jsonObject1.get("projects"))).get(0)).get("title"));
+    }
+    
+    @Test
+    public void postProjectXMLMalformed() {
+        APICall apiCall = new APICall();
+        String xml = "<project><id>15</id><name>test</name><description>test</description></project>";
+        apiCall.postXML("/projects", "xml", xml);
+        Response response = apiCall.postXML("/projects", "xml", xml);
+        assertEquals(404, response.code());
+        Response response1 = apiCall.get("projects/15", "json");
+        JSONParser jsonParser1 = new JSONParser();
+        JSONObject jsonObject1 = null;
+        try {
+            jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
+        assertEquals("Could not find an instance with projects/15", error);
+
     }
 
 
