@@ -627,7 +627,9 @@ public class CategoriesTest {
 
     @Test
     public void deleteProjectRelatedToCategory(){
-        // The relationship between project and category must already exist for this to work!
+
+        postProjectsRelatedToCategory(); // POST relationship so that the relationship exists to be deleted
+
         APICall ap = new APICall();
         Thread t1 = new Thread(new Runnable() {
             @Override
@@ -894,7 +896,9 @@ public class CategoriesTest {
 
     @Test
     public void deleteTodosRelatedToCategory(){
-      // relationship between a todo and a category must be established beforehand
+
+        postTodosRelatedToCategory(); // POST relationship so that the relationship exists to be deleted
+
         APICall ap = new APICall();
         Thread t1 = new Thread(new Runnable() {
             @Override
