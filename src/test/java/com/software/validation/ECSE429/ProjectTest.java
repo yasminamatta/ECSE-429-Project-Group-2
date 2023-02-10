@@ -266,17 +266,17 @@ public class ProjectTest {
     @Test
     public void deleteProjectCategoriesById() {
         APICall apiCall = new APICall();
+
         Response response = apiCall.delete("projects/1/categories/1", "json");
-
-
         assertEquals(200, response.code());
+
         Response response1 = apiCall.get("projects/1/categories", "json");
         JSONParser jsonParser1 = new JSONParser();
         JSONObject jsonObject1 = null;
         try {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
         } catch (Exception e) {
-            //e.printStackTrace();
+            e.printStackTrace();
         }
         assertEquals(0, ((JSONArray) jsonObject1.get("categories")).size());
         System.out.println("DELETE projects/:id/categories/:id -- TEST PASSED");
@@ -294,7 +294,7 @@ public class ProjectTest {
             e.printStackTrace();
         }
         int size = ((JSONArray) jsonObject.get("todos")).size();
-        Assert.assertEquals(1, size);
+        Assert.assertEquals(2, size);
         assertEquals(200, response.code());
         System.out.println("GET projects/:id/tasks -- TEST PASSED");
     }

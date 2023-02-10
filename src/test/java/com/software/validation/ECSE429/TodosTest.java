@@ -24,7 +24,6 @@ import java.util.HashMap;
 import java.util.List;
 
 
-@SpringBootTest
 public class TodosTest {
 
     Integer successCodes[] = {200, 201};
