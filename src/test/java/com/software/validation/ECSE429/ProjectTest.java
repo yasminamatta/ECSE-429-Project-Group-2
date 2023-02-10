@@ -20,34 +20,33 @@ import org.junit.BeforeClass;
 import org.junit.jupiter.api.*;
 
 
-//@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 public class ProjectTest {
 
-    // @BeforeClass
-    // public static void setupEnvironment() {
-    //     Runtime rt = Runtime.getRuntime();
-    //     try {
-    //         Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be
-    //                                                                            // tested
-    //         System.out.println("Setting up environment");
-    //         Thread.sleep(5000);
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+    @BeforeEach
+    public void setupEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
+            System.out.println("Setting up environment");
+            Thread.sleep(4000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-    // @AfterClass
-    // public static void resetEnvironment() {
-    //     Runtime rt = Runtime.getRuntime();
-    //     try {
-    //         Process pr = rt.exec("npm.cmd kill-port 4567"); // Resets the API environment once testing session is
-    //                                                         // complete.
-    //         System.out.println("Resetting environment");
-    //         Thread.sleep(5000);
-    //     } catch (Exception e) {
-    //         e.printStackTrace();
-    //     }
-    // }
+    @AfterEach
+    public void resetEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("fuser -k 4567/tcp"); // Resets the API environment once testing session is complete.
+            System.out.println("Resetting environment");
+            Thread.sleep(3000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
 
     @Test
     public void getProject() {
@@ -62,6 +61,8 @@ public class ProjectTest {
         }
         int size = ((JSONArray) jsonObject.get("projects")).size();
         Assert.assertEquals(1, size);
+        System.out.println("GET projects -- TEST PASSED");
+
     }
 
     @Test
@@ -72,6 +73,7 @@ public class ProjectTest {
         Assert.assertEquals("application/json", headers.get("Content-Type"));
         int code = response.code();
         Assert.assertEquals(200, code);
+        System.out.println("HEAD projects -- TEST PASSED");
     }
 
     @Test
@@ -89,13 +91,16 @@ public class ProjectTest {
         } catch (IOException e) {
             e.printStackTrace();
         }
+        JSONObject jsonObjectPost = null;
         try{
-            JSONObject jsonObjectPost = (JSONObject) jsonParser.parse(responsePost);
-            Assert.assertEquals("test", jsonObjectPost.get("title"));
-            Assert.assertEquals("test", jsonObjectPost.get("description"));
+            jsonObjectPost = (JSONObject) jsonParser.parse(responsePost);
+
         } catch (ParseException e) {
             e.printStackTrace();
         }
+        Assert.assertEquals("test", jsonObjectPost.get("title"));
+        Assert.assertEquals("test", jsonObjectPost.get("description"));
+        System.out.println("POST projects -- TEST PASSED");
     }
 
     @Test
@@ -112,6 +117,7 @@ public class ProjectTest {
         Assert.assertEquals("Office Work", ((JSONObject) ((JSONArray) (jsonObject.get("projects"))).get(0)).get("title"));
         Assert.assertEquals("",
                 ((JSONObject) ((JSONArray) (jsonObject.get("projects"))).get(0)).get("description"));
+        System.out.println("GET projects/:id -- TEST PASSED");
     }
 
     @Test
@@ -122,6 +128,7 @@ public class ProjectTest {
         Assert.assertEquals("application/json", headers.get("Content-Type"));
         int code = response.code();
         Assert.assertEquals(200, code);
+        System.out.println("HEAD projects/:id -- TEST PASSED");
     }
 
     @Test
@@ -143,6 +150,7 @@ public class ProjectTest {
         assertEquals("changed", jsonObject.get("description"));
         assertEquals(2, ((JSONArray) jsonObject.get("tasks")).size());
         assertEquals(200, response.code());
+        System.out.println("POST projects/:id -- TEST PASSED");
     }
 
     @Test
@@ -167,6 +175,7 @@ public class ProjectTest {
         assertEquals("", jsonObject.get("description"));
         assertEquals(jsonArray, jsonObject.get("tasks"));
         assertEquals(200, response.code());
+        System.out.println("PUT projects/:id -- TEST PASSED");
     }
 
     @Test
@@ -202,6 +211,7 @@ public class ProjectTest {
         
         String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
         assertEquals("Could not find an instance with projects/"+id, error);
+        System.out.println("DELETE projects/:id -- TEST PASSED");
     }
 
     @Test
@@ -218,6 +228,7 @@ public class ProjectTest {
         int size = ((JSONArray) jsonObject.get("categories")).size();
         Assert.assertEquals(0, size);
         assertEquals(200, response.code());
+        System.out.println("GET projects/:id/categories -- TEST PASSED");
     }
 
     @Test
@@ -228,6 +239,7 @@ public class ProjectTest {
         Assert.assertEquals("application/json", headers.get("Content-Type"));
         int code = response.code();
         Assert.assertEquals(200, code);
+        System.out.println("HEAD projects/:id/categories -- TEST PASSED");
     }
 
     @Test
@@ -236,14 +248,6 @@ public class ProjectTest {
         JSONObject jsonBody = new JSONObject();
         jsonBody.put("id", "1");
         Response response = apiCall.post("projects/1/categories", "json", jsonBody);
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = (JSONObject) jsonParser.parse(response.body().string());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
 
         assertEquals(201, response.code());
         // assertEquals("1", ((JSONObject)((JSONArray) jsonObject.get("categories")).get(0)).get("id"));
@@ -256,19 +260,14 @@ public class ProjectTest {
             e.printStackTrace();
         }
         assertEquals(1, ((JSONArray) jsonObject1.get("categories")).size());
+        System.out.println("POST projects/:id/categories -- TEST PASSED");
     }
 
     @Test
     public void deleteProjectCategoriesById() {
         APICall apiCall = new APICall();
         Response response = apiCall.delete("projects/1/categories/1", "json");
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = (JSONObject) jsonParser.parse(response.body().string());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+
 
         assertEquals(200, response.code());
         Response response1 = apiCall.get("projects/1/categories", "json");
@@ -277,9 +276,10 @@ public class ProjectTest {
         try {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         assertEquals(0, ((JSONArray) jsonObject1.get("categories")).size());
+        System.out.println("DELETE projects/:id/categories/:id -- TEST PASSED");
     }
     
     @Test
@@ -296,6 +296,7 @@ public class ProjectTest {
         int size = ((JSONArray) jsonObject.get("todos")).size();
         Assert.assertEquals(1, size);
         assertEquals(200, response.code());
+        System.out.println("GET projects/:id/tasks -- TEST PASSED");
     }
 
     @Test
@@ -306,6 +307,7 @@ public class ProjectTest {
         Assert.assertEquals("application/json", headers.get("Content-Type"));
         int code = response.code();
         Assert.assertEquals(200, code);
+        System.out.println("HEAD projects/:id/tasks -- TEST PASSED");
     }
 
     @Test
@@ -314,13 +316,6 @@ public class ProjectTest {
         JSONObject jsonBody = new JSONObject();
         jsonBody.put("id", "2");
         Response response = apiCall.post("projects/1/tasks", "json", jsonBody);
-        JSONParser jsonParser = new JSONParser();
-        JSONObject jsonObject = null;
-        try {
-            jsonObject = (JSONObject) jsonParser.parse(response.body().string());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
 
         assertEquals(201, response.code());
         Response response1 = apiCall.get("projects/1/tasks", "json");
@@ -329,9 +324,10 @@ public class ProjectTest {
         try {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
         assertEquals(2, ((JSONArray) jsonObject1.get("todos")).size());
+        System.out.println("POST projects/:id/tasks -- TEST PASSED");
     }
 
     @Test
@@ -348,6 +344,7 @@ public class ProjectTest {
             e.printStackTrace();
         }
         assertEquals(1, ((JSONArray) jsonObject1.get("todos")).size());
+        System.out.println("DELETE projects/:id/tasks/:id -- TEST PASSED");
     }
 
     @Test
@@ -370,6 +367,7 @@ public class ProjectTest {
         }
         String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
         assertEquals("Could not find an instance with projects/10", error);
+        System.out.println("POST projects/:id (JSON malformed) -- TEST PASSED");
     }
 
     @Test
@@ -396,6 +394,7 @@ public class ProjectTest {
             e.printStackTrace();
         }
         assertEquals("ECSE 429", ((JSONObject) ((JSONArray) (jsonObject1.get("projects"))).get(0)).get("title"));
+        System.out.println("POST projects (XML) -- TEST PASSED");
     }
     
     @Test
@@ -415,6 +414,7 @@ public class ProjectTest {
         }
         String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
         assertEquals("Could not find an instance with projects/15", error);
+        System.out.println("POST projects/:id (XML Malformed) -- TEST PASSED");
 
     }
 

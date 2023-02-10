@@ -8,7 +8,10 @@ import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
 import org.junit.AfterClass;
+import org.junit.Before;
 import org.junit.BeforeClass;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeAll;
@@ -27,26 +30,38 @@ public class TodosTest {
     Integer successCodes[] = {200, 201};
     int todos[] = {0, 0};
 
+//    @BeforeAll
+//    public static void installDependencies() {
+//        Runtime rt = Runtime.getRuntime();
+//        try {
+//            Process pr = rt.exec("npm.cmd install --save kill-port"); // Ensures that the API is ready to be tested
+//            System.out.println("Installing dependencies");
+//            Thread.sleep(5000);
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//    }
 
-    @BeforeClass
-    public static void setupEnvironment() {
+
+    @BeforeEach
+    public void setupEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
             Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
             System.out.println("Setting up environment");
-            Thread.sleep(5000);
+            Thread.sleep(4000);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @AfterClass
-    public static void resetEnvironment() {
+    @AfterEach
+    public void resetEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec("npm.cmd kill-port 4567"); // Resets the API environment once testing session is complete.
+            Process pr = rt.exec("fuser -k 4567/tcp"); // Resets the API environment once testing session is complete.
             System.out.println("Resetting environment");
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -56,7 +71,7 @@ public class TodosTest {
 
 
     @Test
-    public void get() {
+    public void getTodos() {
         APICall ap = new APICall();
         Response response = ap.get("todos", "json");
         JSONParser parser = new JSONParser();
@@ -77,7 +92,7 @@ public class TodosTest {
     }
 
     @Test
-    public void head() {
+    public void headTodos() {
         APICall api = new APICall();
         Response response = api.head("todos", "json");
         Headers headers = response.headers();
@@ -92,7 +107,7 @@ public class TodosTest {
     }
 
     @Test
-    public void post() {
+    public void postTodo() {
         APICall ap = new APICall();
         Thread t1 = new Thread(new Runnable() {
             @Override
@@ -185,7 +200,7 @@ public class TodosTest {
     }
 
     @Test
-    public void getId() {
+    public void getTodoById() {
         APICall ap = new APICall();
         Response response = ap.get("todos/2", "json");
         JSONParser parser = new JSONParser();
@@ -217,7 +232,7 @@ public class TodosTest {
     }
 
     @Test
-    public void headId() {
+    public void headTodoById() {
         APICall api = new APICall();
         Response response = api.head("todos/2", "json");
         Headers headers = response.headers();
@@ -231,7 +246,7 @@ public class TodosTest {
     }
 
     @Test
-    public void postId() {
+    public void postTodoById() {
         APICall ap = new APICall();
         Thread t1 = new Thread(new Runnable() {
             @Override
@@ -322,7 +337,7 @@ public class TodosTest {
     }
 
     @Test
-    public void putId() {
+    public void putTodoById() {
         APICall ap = new APICall();
         Thread t1 = new Thread(new Runnable() {
             @Override
@@ -417,7 +432,7 @@ public class TodosTest {
     }
 
     @Test
-    public void deleteId() {
+    public void deleteTodoById() {
         APICall ap = new APICall();
         Thread t1 = new Thread(new Runnable() {
             @Override
@@ -490,7 +505,7 @@ public class TodosTest {
     }
 
     @Test
-    public void getIdTasksOf() {
+    public void getTasksOfTodoById() {
 
         int counter = 0;
         boolean related = false;
@@ -550,7 +565,7 @@ public class TodosTest {
     }
 
     @Test
-    public void headIdTasksOf() {
+    public void headTasksOfTodoById() {
         APICall api = new APICall();
         Response response = api.head("todos/1/tasksof", "json");
         Headers headers = response.headers();
@@ -566,7 +581,7 @@ public class TodosTest {
     }
 
     @Test
-    public void postIdTasksOf() {
+    public void postTasksOfTodoById() {
         APICall ap = new APICall();
         String[] newTodoId = {""};
         int counter = 0;
@@ -729,7 +744,7 @@ public class TodosTest {
     }
 
     @Test
-    public void deleteIdTasksOfId() {
+    public void deleteTasksOfTodoById() {
         APICall ap = new APICall();
 
         Thread t1 = new Thread(new Runnable() {
@@ -820,7 +835,7 @@ public class TodosTest {
     }
 
     @Test
-    public void getIdCategories() {
+    public void getCategoriesOfTodoById() {
         APICall ap = new APICall();
         Response response = ap.get("todos/1/categories", "json");
         JSONParser parser = new JSONParser();
@@ -840,7 +855,7 @@ public class TodosTest {
     }
 
     @Test
-    public void headIdCategories() {
+    public void headCategoriesOfTodoById() {
 
 
         APICall ap = new APICall();
@@ -857,7 +872,7 @@ public class TodosTest {
     }
 
     @Test
-    public void postIdCategories() {
+    public void postCategoriesOfTodoById() {
         APICall ap = new APICall();
         String[] newTodoId = {""};
         int counter = 0;
@@ -942,7 +957,7 @@ public class TodosTest {
     }
 
     @Test
-    public void deleteIdCategories() {
+    public void deleteCategoriesOfTodoById() {
         APICall ap = new APICall();
         String[] newTodoId = {""};
         int counter = 0;
