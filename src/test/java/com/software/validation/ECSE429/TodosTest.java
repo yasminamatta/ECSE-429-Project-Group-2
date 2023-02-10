@@ -79,6 +79,8 @@ public class TodosTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         int size = ((JSONArray)(json.get("todos"))).size();
@@ -119,6 +121,9 @@ public class TodosTest {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
+                finally {
+                    size.body().close();
+                }
                 todos[0] = ((JSONArray)(json.get("todos"))).size();
             }
         });
@@ -141,6 +146,8 @@ public class TodosTest {
             responsePost = response.body().string();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         try {
@@ -155,6 +162,9 @@ public class TodosTest {
                 jsonResponse = (JSONObject) parserResponse.parse(size.body().string());
             } catch (Exception e) {
                 e.printStackTrace();
+            }
+            finally {
+                size.body().close();
             }
 
 
@@ -180,6 +190,9 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                }
+                finally {
+                    size2.body().close();
                 }
                 todos[1] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -208,6 +221,8 @@ public class TodosTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         int size = ((JSONArray)(json.get("todos"))).size();
@@ -257,6 +272,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 todos[0] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -280,6 +297,8 @@ public class TodosTest {
             responsePost = response.body().string();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         try {
@@ -294,6 +313,8 @@ public class TodosTest {
                 jsonResponse = (JSONObject) parserResponse.parse(res.body().string());
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                res.body().close();
             }
 
 
@@ -318,6 +339,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 todos[1] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -348,6 +371,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 todos[0] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -375,6 +400,8 @@ public class TodosTest {
             responsePost = response.body().string();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         try {
@@ -389,6 +416,8 @@ public class TodosTest {
                 jsonResponse = (JSONObject) parserResponse.parse(res.body().string());
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                res.body().close();
             }
 
 
@@ -413,6 +442,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 todos[1] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -443,6 +474,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 todos[0] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -470,6 +503,8 @@ public class TodosTest {
             json = (JSONObject) parser.parse(retrieveDeleted.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            retrieveDeleted.body().close();
         }
 
         String error = (String) ((((JSONArray)json.get("errorMessages")).get(0)));
@@ -487,6 +522,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 todos[1] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -518,6 +555,8 @@ public class TodosTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         int size = ((JSONArray)(json.get("projects"))).size();
@@ -569,9 +608,7 @@ public class TodosTest {
         Response response = api.head("todos/1/tasksof", "json");
         Headers headers = response.headers();
         Assert.assertEquals(4, headers.size());
-        //System.out.println("Size: " + headers.size() + " - TEST PASSED");
         Assert.assertEquals("application/json", headers.get("Content-Type").toString());
-        //System.out.println("Content-Type: " + headers.get("Content-Type").toString() + " - TEST PASSED");
 
         int code = response.code();
         Assert.assertTrue(Arrays.asList(successCodes).contains(code));
@@ -602,6 +639,8 @@ public class TodosTest {
                     responsePost = response.body().string();
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    response.body().close();
                 }
 
                 JSONParser parser = new JSONParser();
@@ -636,6 +675,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 todos[0] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -678,6 +719,8 @@ public class TodosTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
 
@@ -725,6 +768,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 todos[1] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -756,6 +801,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 todos[0] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -796,6 +843,8 @@ public class TodosTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         for(Object allRelatedProjects : ((JSONArray)(json.get("projects")))) {
@@ -816,6 +865,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 todos[1] = ((JSONArray)(json.get("todos"))).size();
             }
@@ -843,6 +894,8 @@ public class TodosTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         int code = response.code();
@@ -861,7 +914,7 @@ public class TodosTest {
         Response response = ap.head("todos/1/categories", "json");
         Headers headers = response.headers();
         Assert.assertEquals(4, headers.size());
-
+        Assert.assertEquals("application/json", headers.get("Content-Type").toString());
         int code = response.code();
         Assert.assertTrue(Arrays.asList(successCodes).contains(code));
 
@@ -887,6 +940,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 Assert.assertEquals(0, ((JSONArray)(json.get("categories"))).size());
 
@@ -897,6 +952,8 @@ public class TodosTest {
                     jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    responseOfTodos.body().close();
                 }
                 todos[0] = ((JSONArray)(jsonOfTodos.get("todos"))).size();
             }
@@ -927,6 +984,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 Assert.assertEquals(1, ((JSONArray)(json.get("categories"))).size());
 
@@ -938,6 +997,8 @@ public class TodosTest {
                     jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    responseOfTodos.body().close();
                 }
                 todos[1] = ((JSONArray)(jsonOfTodos.get("todos"))).size();
             }
@@ -972,6 +1033,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 Assert.assertEquals(1, ((JSONArray)(json.get("categories"))).size());
 
@@ -983,6 +1046,8 @@ public class TodosTest {
                     jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    responseOfTodos.body().close();
                 }
                 todos[0] = ((JSONArray)(jsonOfTodos.get("todos"))).size();
             }
@@ -1011,6 +1076,8 @@ public class TodosTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 Assert.assertEquals(0, ((JSONArray)(json.get("categories"))).size());
 
@@ -1022,6 +1089,8 @@ public class TodosTest {
                     jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    responseOfTodos.body().close();
                 }
                 todos[1] = ((JSONArray)(jsonOfTodos.get("todos"))).size();
             }
