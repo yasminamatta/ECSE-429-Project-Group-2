@@ -133,5 +133,27 @@ public class APICall {
         return response;
     }
 
+    public Response postXML(String url, String contentType, String xmlBody) {
+        OkHttpClient client = new OkHttpClient();
+        Response response = null;
+        url = "http://localhost:4567/" + url;
+
+        MediaType XML = MediaType.parse("application/" + contentType + "; charset=utf-8");
+        RequestBody body = RequestBody.create(XML, xmlBody);
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("content-type", "application/" + contentType + "; charset=utf-8")
+                .post(body)
+                .build();
+
+        try {
+            response = client.newCall(request).execute();
+        } catch (IOException e) {
+            return null;
+        }
+        return response;
+    }
+
 
 }

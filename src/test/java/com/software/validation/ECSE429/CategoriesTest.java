@@ -10,7 +10,9 @@ import org.json.simple.parser.ParseException;
 import org.junit.AfterClass;
 import org.junit.Assert;
 import org.junit.BeforeClass;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.BeforeAll;
 
 import java.io.IOException;
@@ -22,26 +24,25 @@ public class CategoriesTest {
     Integer successCodes[] = {200, 201}; // HTML success codes for OK and CREATE
     int categories[] = {0, 0}; // empty categories array to be used throughout the testing
 
-
-    @BeforeClass
-    public static void setupEnvironment() {
+    @BeforeEach
+    public void setupEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // ensures that the API is ready to be tested, by setting up environment
+            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
             System.out.println("Setting up environment");
-            Thread.sleep(5000);
+            Thread.sleep(4000);
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
-    @AfterClass
-    public static void resetEnvironment() {
+    @AfterEach
+    public void resetEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec("npx kill-port 4567"); // Once the testing is complete, reset the environment
+            Process pr = rt.exec("fuser -k 4567/tcp"); // Resets the API environment once testing session is complete.
             System.out.println("Resetting environment");
-            Thread.sleep(5000);
+            Thread.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
         }
