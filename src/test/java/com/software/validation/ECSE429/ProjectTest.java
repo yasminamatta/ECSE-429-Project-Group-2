@@ -265,6 +265,22 @@ public class ProjectTest {
 
     @Test
     public void deleteProjectCategoriesById() {
+
+        // creating relationship between project and category (and testing) for delete API to run since none exists by default
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                postProjectCategoriesById();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+
+        }
+
         APICall apiCall = new APICall();
 
         Response response = apiCall.delete("projects/1/categories/1", "json");
