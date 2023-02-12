@@ -57,6 +57,8 @@ public class ProjectTest {
             jsonObject = (JSONObject) jsonParser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
         int size = ((JSONArray) jsonObject.get("projects")).size();
         Assert.assertEquals(1, size);
@@ -89,6 +91,8 @@ public class ProjectTest {
             responsePost = response.body().string();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
         JSONObject jsonObjectPost = null;
         try{
@@ -112,6 +116,8 @@ public class ProjectTest {
             jsonObject = (JSONObject) jsonParser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
         Assert.assertEquals("Office Work", ((JSONObject) ((JSONArray) (jsonObject.get("projects"))).get(0)).get("title"));
         Assert.assertEquals("",
@@ -143,6 +149,8 @@ public class ProjectTest {
             jsonObject = (JSONObject) jsonParser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         assertEquals("changed", jsonObject.get("title"));
@@ -168,6 +176,8 @@ public class ProjectTest {
             jsonObject = (JSONObject) jsonParser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
         JSONArray jsonArray = (JSONArray) jsonObject.get("tasks");
         assertEquals("updated", jsonObject.get("title"));
@@ -193,6 +203,8 @@ public class ProjectTest {
             json = (JSONObject) jsonParser2.parse(response1.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response1.body().close();
         }
         String id = (String) json.get("id");
 
@@ -206,6 +218,8 @@ public class ProjectTest {
             jsonObject1 = (JSONObject) jsonParser1.parse(response3.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response3.body().close();
         }
 
         String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
@@ -223,6 +237,8 @@ public class ProjectTest {
             jsonObject = (JSONObject) jsonParser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
         int size = ((JSONArray) jsonObject.get("categories")).size();
         Assert.assertEquals(0, size);
@@ -257,6 +273,8 @@ public class ProjectTest {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response1.body().close();
         }
         assertEquals(1, ((JSONArray) jsonObject1.get("categories")).size());
         System.out.println("POST projects/:id/categories -- TEST PASSED");
@@ -292,6 +310,8 @@ public class ProjectTest {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response1.body().close();
         }
         assertEquals(0, ((JSONArray) jsonObject1.get("categories")).size());
         System.out.println("DELETE projects/:id/categories/:id -- TEST PASSED");
@@ -307,6 +327,8 @@ public class ProjectTest {
             jsonObject = (JSONObject) jsonParser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
         int size = ((JSONArray) jsonObject.get("todos")).size();
         Assert.assertEquals(2, size);
@@ -339,7 +361,9 @@ public class ProjectTest {
         try {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
         } catch (Exception e) {
-            //e.printStackTrace();
+            // no body response returned
+        } finally {
+            response.body().close();
         }
         assertEquals(2, ((JSONArray) jsonObject1.get("todos")).size());
         System.out.println("POST projects/:id/tasks -- TEST PASSED");
@@ -357,6 +381,8 @@ public class ProjectTest {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response1.body().close();
         }
         assertEquals(1, ((JSONArray) jsonObject1.get("todos")).size());
         System.out.println("DELETE projects/:id/tasks/:id -- TEST PASSED");
@@ -379,6 +405,8 @@ public class ProjectTest {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response1.body().close();
         }
         String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
         assertEquals("Could not find an instance with projects/10", error);
@@ -398,6 +426,8 @@ public class ProjectTest {
             json = (JSONObject) jsonParser2.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
         String id = (String) json.get("id");
         Response response1 = apiCall.get("projects/"+id+"", "json");
@@ -407,6 +437,8 @@ public class ProjectTest {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response1.body().close();
         }
         assertEquals("ECSE 429", ((JSONObject) ((JSONArray) (jsonObject1.get("projects"))).get(0)).get("title"));
         System.out.println("POST projects (XML) -- TEST PASSED");
@@ -426,6 +458,8 @@ public class ProjectTest {
             jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response1.body().close();
         }
         String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
         assertEquals("Could not find an instance with projects/15", error);

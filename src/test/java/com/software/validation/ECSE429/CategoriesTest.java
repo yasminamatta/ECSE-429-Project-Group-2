@@ -57,6 +57,8 @@ public class CategoriesTest {
             json = (JSONObject) parser.parse(response.body().string()); // get categories as a response
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         int size = ((JSONArray)(json.get("categories"))).size();
@@ -87,6 +89,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 categories[0] = ((JSONArray)(json.get("categories"))).size();
             }
@@ -109,6 +113,8 @@ public class CategoriesTest {
             responsePost = response.body().string();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         try {
@@ -122,6 +128,8 @@ public class CategoriesTest {
                 jsonResponse = (JSONObject) parserResponse.parse(size.body().string()); // parse body into created JSON object
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                size.body().close();
             }
 
             // check that the id and the body of the created post both match
@@ -145,6 +153,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 categories[1] = ((JSONArray)(json.get("categories"))).size(); // add the new size of categories to array
             }
@@ -171,6 +181,8 @@ public class CategoriesTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         int size = ((JSONArray)(json.get("categories"))).size();
@@ -217,6 +229,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 categories[0] = ((JSONArray)(json.get("categories"))).size();
             }
@@ -239,6 +253,8 @@ public class CategoriesTest {
             responsePost = response.body().string();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         try {
@@ -252,6 +268,8 @@ public class CategoriesTest {
                 jsonResponse = (JSONObject) parserResponse.parse(res.body().string());
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                res.body().close();
             }
 
             // check if the new body is now with the category with the given ID
@@ -274,6 +292,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 categories[1] = ((JSONArray)(json.get("categories"))).size();
             }
@@ -302,6 +322,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 categories[0] = ((JSONArray)(json.get("categories"))).size();
             }
@@ -324,6 +346,8 @@ public class CategoriesTest {
             responsePost = response.body().string();
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         try {
@@ -337,6 +361,8 @@ public class CategoriesTest {
                 jsonResponse = (JSONObject) parserResponse.parse(res.body().string());
             } catch (Exception e) {
                 e.printStackTrace();
+            } finally {
+                res.body().close();
             }
 
             // check if the body matches with input
@@ -360,6 +386,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 categories[1] = ((JSONArray)(json.get("categories"))).size();
             }
@@ -389,6 +417,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 categories[0] = ((JSONArray)(json.get("categories"))).size(); // getting number of categories present before 1 is deleted
             }
@@ -413,6 +443,8 @@ public class CategoriesTest {
             json = (JSONObject) parser.parse(retrieveDeleted.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            retrieveDeleted.body().close();
         }
 
         String error = (String) ((((JSONArray)json.get("errorMessages")).get(0)));
@@ -428,6 +460,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 categories[1] = ((JSONArray)(json.get("categories"))).size();
             }
@@ -453,6 +487,8 @@ public class CategoriesTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         var contents = ((JSONArray)(json.get("categories")));
@@ -498,6 +534,8 @@ public class CategoriesTest {
                     responsePost = response.body().string();
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    response.body().close();
                 }
 
                 JSONParser parser = new JSONParser();
@@ -528,6 +566,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 categories[0] = ((JSONArray) (json.get("categories"))).size(); // getting the size of the categories before POST
             }
@@ -567,6 +607,8 @@ public class CategoriesTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         int mapSize = ((JSONArray) (json.get("projects"))).size(); // Making a map to add the projects to
@@ -608,6 +650,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 categories[1] = ((JSONArray) (json.get("categories"))).size();
             }
@@ -639,6 +683,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 categories[0] = ((JSONArray)(json.get("categories"))).size();
             }
@@ -676,6 +722,8 @@ public class CategoriesTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         for(Object allRelatedProjects : ((JSONArray)(json.get("projects")))) {
@@ -696,6 +744,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 categories[1] = ((JSONArray)(json.get("categories"))).size();
             }
@@ -722,6 +772,8 @@ public class CategoriesTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         var contents = ((JSONArray)(json.get("todos"))).size();
@@ -767,6 +819,8 @@ public class CategoriesTest {
                     responsePost = response.body().string();
                 } catch (IOException e) {
                     e.printStackTrace();
+                } finally {
+                    response.body().close();
                 }
 
                 JSONParser parser = new JSONParser();
@@ -797,6 +851,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 categories[0] = ((JSONArray) (json.get("categories"))).size(); // getting the size of the categories before POST
             }
@@ -836,6 +892,8 @@ public class CategoriesTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         int mapSize = ((JSONArray) (json.get("todos"))).size(); // Making a map to add the todos to
@@ -877,6 +935,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 categories[1] = ((JSONArray) (json.get("categories"))).size();
             }
@@ -908,6 +968,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size.body().close();
                 }
                 categories[0] = ((JSONArray)(json.get("categories"))).size();
             }
@@ -945,6 +1007,8 @@ public class CategoriesTest {
             json = (JSONObject) parser.parse(response.body().string());
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            response.body().close();
         }
 
         for(Object allRelatedProjects : ((JSONArray)(json.get("todos")))) {
@@ -965,6 +1029,8 @@ public class CategoriesTest {
                     json = (JSONObject) parser.parse(size2.body().string());
                 } catch (Exception e) {
                     e.printStackTrace();
+                } finally {
+                    size2.body().close();
                 }
                 categories[1] = ((JSONArray)(json.get("categories"))).size();
             }
