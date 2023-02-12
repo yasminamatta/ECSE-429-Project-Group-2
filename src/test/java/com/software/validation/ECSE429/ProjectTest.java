@@ -39,7 +39,7 @@ public class ProjectTest {
     public void resetEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec("fuser -k 4567/tcp"); // Resets the API environment once testing session is complete.
+            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
             System.out.println("Resetting environment");
             Thread.sleep(3000);
         } catch (Exception e) {
@@ -180,7 +180,7 @@ public class ProjectTest {
 
     @Test
     public void deleteProjectById() {
-        
+
         APICall apiCall = new APICall();
 
         JSONObject jsonObject = new JSONObject();
@@ -188,7 +188,7 @@ public class ProjectTest {
         jsonObject.put("description", "test");
         Response response1 = apiCall.post("projects", "json", jsonObject);
         assertEquals(201, response1.code());
-        JSONParser jsonParser2 = new JSONParser(); 
+        JSONParser jsonParser2 = new JSONParser();
         JSONObject json = null;
         try{
             json = (JSONObject) jsonParser2.parse(response1.body().string());
@@ -208,7 +208,7 @@ public class ProjectTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        
+
         String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
         assertEquals("Could not find an instance with projects/"+id, error);
         System.out.println("DELETE projects/:id -- TEST PASSED");
@@ -278,7 +278,7 @@ public class ProjectTest {
         try {
             t1.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         APICall apiCall = new APICall();
@@ -297,7 +297,7 @@ public class ProjectTest {
         assertEquals(0, ((JSONArray) jsonObject1.get("categories")).size());
         System.out.println("DELETE projects/:id/categories/:id -- TEST PASSED");
     }
-    
+
     @Test
     public void getProjectByIdTasks() {
         APICall apiCall = new APICall();
@@ -393,7 +393,7 @@ public class ProjectTest {
         Response response = null;
         response = apiCall.postXML("projects", "xml", xml);
         assertEquals(201, response.code());
-        JSONParser jsonParser2 = new JSONParser(); 
+        JSONParser jsonParser2 = new JSONParser();
         JSONObject json = null;
         try{
             json = (JSONObject) jsonParser2.parse(response.body().string());
@@ -412,7 +412,7 @@ public class ProjectTest {
         assertEquals("ECSE 429", ((JSONObject) ((JSONArray) (jsonObject1.get("projects"))).get(0)).get("title"));
         System.out.println("POST projects (XML) -- TEST PASSED");
     }
-    
+
     @Test
     public void postProjectXMLMalformed() {
         APICall apiCall = new APICall();
@@ -430,7 +430,7 @@ public class ProjectTest {
         }
         String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
         assertEquals("Could not find an instance with projects/15", error);
-        System.out.println("POST projects/:id (XML Malformed) -- TEST PASSED");
+        System.out.println("POST projects (XML Malformed) -- TEST PASSED");
 
     }
 

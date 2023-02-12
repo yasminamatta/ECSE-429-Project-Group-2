@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 public class CategoriesTest {
     Integer successCodes[] = {200, 201}; // HTML success codes for OK and CREATE
     int categories[] = {0, 0}; // empty categories array to be used throughout the testing
@@ -40,7 +42,7 @@ public class CategoriesTest {
     public void resetEnvironment() {
         Runtime rt = Runtime.getRuntime();
         try {
-            Process pr = rt.exec("fuser -k 4567/tcp"); // Resets the API environment once testing session is complete.
+            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
             System.out.println("Resetting environment");
             Thread.sleep(3000);
         } catch (Exception e) {
@@ -98,7 +100,7 @@ public class CategoriesTest {
         try {
             t1.join(); // allows for GET to be completed first, before then doing the POST method
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
@@ -148,7 +150,7 @@ public class CategoriesTest {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-                categories[1] = ((JSONArray)(json.get("categories"))).size(); // add the new number of categories to array
+                categories[1] = ((JSONArray)(json.get("categories"))).size(); // add the new size of categories to array
             }
         });
 
@@ -156,7 +158,7 @@ public class CategoriesTest {
         try {
             t2.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Assert.assertEquals(1, Math.abs(categories[1] - categories[0])); // check that only 1 category was added
@@ -228,7 +230,7 @@ public class CategoriesTest {
         try {
             t1.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         JSONObject js = new JSONObject(); // creating new JSON object with updated body
@@ -285,7 +287,7 @@ public class CategoriesTest {
         try {
             t2.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
         Assert.assertEquals(0, Math.abs(categories[1] - categories[0])); // check that no new category was created. Body of one category should've been overwritten
         System.out.println("POST categories/:id -- TEST PASSED");
@@ -313,13 +315,13 @@ public class CategoriesTest {
         try {
             t1.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         JSONObject js = new JSONObject();
         js.put("title", "Office");
         js.put("description", "");
-        Response response = ap.put("categories/1", "json", js); // using id = 3. Should completely replace the current entry with ID=3.
+        Response response = ap.put("categories/1", "json", js); // using id = 1. Should completely replace the current entry with ID=1.
 
         String responsePost = null;
         try {
@@ -371,7 +373,7 @@ public class CategoriesTest {
         try {
             t2.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Assert.assertEquals(0, Math.abs(categories[1] - categories[0])); // no new entry should be created. Only the body should completely change.
@@ -400,7 +402,7 @@ public class CategoriesTest {
         try {
             t1.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Response response = ap.delete("categories/2", "json"); // delete category with ID=2
@@ -439,7 +441,7 @@ public class CategoriesTest {
         try {
             t2.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
         Assert.assertEquals(1, Math.abs(categories[1] - categories[0])); // the difference should be 1, between what the number of initial categories and the current number
         System.out.println("DELETE categories/:id -- TEST PASSED");
@@ -517,7 +519,7 @@ public class CategoriesTest {
         try {
             t3.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Thread t1 = new Thread(new Runnable() {
@@ -539,7 +541,7 @@ public class CategoriesTest {
         try {
             t1.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Thread t4 = new Thread(new Runnable() {
@@ -559,7 +561,7 @@ public class CategoriesTest {
         try {
             t4.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Response response = ap.get("categories/" + newCategoryId[0] + "/projects", "json"); // Getting the project assigned to category 1
@@ -619,7 +621,7 @@ public class CategoriesTest {
         try {
             t2.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
         Assert.assertEquals(0, Math.abs(categories[1] - categories[0]));
         System.out.println("POST categories/:id/projects -- TEST PASSED");
@@ -650,7 +652,7 @@ public class CategoriesTest {
         try {
             t1.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Thread t4 = new Thread(new Runnable() {
@@ -668,7 +670,7 @@ public class CategoriesTest {
         try {
             t4.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Response response = ap.get("categories/1/projects", "json");
@@ -707,7 +709,7 @@ public class CategoriesTest {
         try {
             t2.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Assert.assertEquals(0, Math.abs(categories[1] - categories[0]));// Confirmation that no new categories were deleted
@@ -786,7 +788,7 @@ public class CategoriesTest {
         try {
             t3.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Thread t1 = new Thread(new Runnable() {
@@ -808,7 +810,7 @@ public class CategoriesTest {
         try {
             t1.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Thread t4 = new Thread(new Runnable() {
@@ -828,7 +830,7 @@ public class CategoriesTest {
         try {
             t4.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Response response = ap.get("categories/" + newCategoryId[0] + "/todos", "json"); // Getting the todo assigned to category 1
@@ -888,7 +890,7 @@ public class CategoriesTest {
         try {
             t2.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
         Assert.assertEquals(0, Math.abs(categories[1] - categories[0]));
         System.out.println("POST categories/:id/todos -- TEST PASSED");
@@ -919,7 +921,7 @@ public class CategoriesTest {
         try {
             t1.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Thread t4 = new Thread(new Runnable() {
@@ -937,7 +939,7 @@ public class CategoriesTest {
         try {
             t4.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Response response = ap.get("categories/1/todos", "json");
@@ -976,7 +978,7 @@ public class CategoriesTest {
         try {
             t2.join();
         } catch (Exception e) {
-
+            assertEquals("Thread join failed", "Thread join successful");
         }
 
         Assert.assertEquals(0, Math.abs(categories[1] - categories[0]));
