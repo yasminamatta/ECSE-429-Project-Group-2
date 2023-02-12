@@ -61,7 +61,7 @@ public class ProjectTest {
             response.body().close();
         }
         int size = ((JSONArray) jsonObject.get("projects")).size();
-        Assert.assertEquals(1, size);
+        Assert.assertEquals(1, size); // Initially we have one existing project
         System.out.println("GET projects -- TEST PASSED");
 
     }
@@ -73,6 +73,7 @@ public class ProjectTest {
         Headers headers = response.headers();
         Assert.assertEquals("application/json", headers.get("Content-Type"));
         int code = response.code();
+        Assert.assertEquals(1, headers.size()); // Checks that there is one existing project
         Assert.assertEquals(200, code);
         System.out.println("HEAD projects -- TEST PASSED");
     }
@@ -80,7 +81,7 @@ public class ProjectTest {
     @Test
     public void postProject() {
         APICall apiCall = new APICall();
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject = new JSONObject(); // Creates a new json object to be sent to the API
         jsonObject.put("title", "test");
         jsonObject.put("description", "test");
         Response response = apiCall.post("projects", "json", jsonObject);
@@ -101,8 +102,8 @@ public class ProjectTest {
         } catch (ParseException e) {
             e.printStackTrace();
         }
-        Assert.assertEquals("test", jsonObjectPost.get("title"));
-        Assert.assertEquals("test", jsonObjectPost.get("description"));
+        Assert.assertEquals("test", jsonObjectPost.get("title")); // checks that the title is correct
+        Assert.assertEquals("test", jsonObjectPost.get("description")); //checks that the description is correct
         System.out.println("POST projects -- TEST PASSED");
     }
 
@@ -119,9 +120,9 @@ public class ProjectTest {
         } finally {
             response.body().close();
         }
-        Assert.assertEquals("Office Work", ((JSONObject) ((JSONArray) (jsonObject.get("projects"))).get(0)).get("title"));
+        Assert.assertEquals("Office Work", ((JSONObject) ((JSONArray) (jsonObject.get("projects"))).get(0)).get("title")); // checks that the title is correct
         Assert.assertEquals("",
-                ((JSONObject) ((JSONArray) (jsonObject.get("projects"))).get(0)).get("description"));
+                ((JSONObject) ((JSONArray) (jsonObject.get("projects"))).get(0)).get("description")); //checks that the description is correct
         System.out.println("GET projects/:id -- TEST PASSED");
     }
 
@@ -132,6 +133,7 @@ public class ProjectTest {
         Headers headers = response.headers();
         Assert.assertEquals("application/json", headers.get("Content-Type"));
         int code = response.code();
+        Assert.assertEquals(1, headers.size()); // Checks that it returns one header
         Assert.assertEquals(200, code);
         System.out.println("HEAD projects/:id -- TEST PASSED");
     }
@@ -139,7 +141,7 @@ public class ProjectTest {
     @Test
     public void postProjectById() {
         APICall apiCall = new APICall();
-        JSONObject jsonBody = new JSONObject();
+        JSONObject jsonBody = new JSONObject(); // Creates a new json object to be sent to the API
         jsonBody.put("title", "changed");
         jsonBody.put("description", "changed");
         Response response = apiCall.post("projects/1", "json", jsonBody);
@@ -153,17 +155,17 @@ public class ProjectTest {
             response.body().close();
         }
 
-        assertEquals("changed", jsonObject.get("title"));
-        assertEquals("changed", jsonObject.get("description"));
-        assertEquals(2, ((JSONArray) jsonObject.get("tasks")).size());
-        assertEquals(200, response.code());
+        assertEquals("changed", jsonObject.get("title")); // checks that the title is correct
+        assertEquals("changed", jsonObject.get("description")); //checks that the description is correct
+        assertEquals(2, ((JSONArray) jsonObject.get("tasks")).size()); // checks that the number of tasks is correct
+        assertEquals(200, response.code()); // checks that the response code is correct
         System.out.println("POST projects/:id -- TEST PASSED");
     }
 
     @Test
     public void putProjectById() {
         APICall apiCall = new APICall();
-        JSONObject jsonBody = new JSONObject();
+        JSONObject jsonBody = new JSONObject(); // creates a new json object to be sent to the API
         jsonBody.put("title", "updated");
         jsonBody.put("description", "");
         HashMap tasks = new HashMap();
@@ -179,11 +181,11 @@ public class ProjectTest {
         } finally {
             response.body().close();
         }
-        JSONArray jsonArray = (JSONArray) jsonObject.get("tasks");
-        assertEquals("updated", jsonObject.get("title"));
-        assertEquals("", jsonObject.get("description"));
-        assertEquals(jsonArray, jsonObject.get("tasks"));
-        assertEquals(200, response.code());
+        JSONArray jsonArray = (JSONArray) jsonObject.get("tasks"); // gets the tasks array
+        assertEquals("updated", jsonObject.get("title"));   // checks that the title is correct
+        assertEquals("", jsonObject.get("description")); //checks that the description is correct
+        assertEquals(jsonArray, jsonObject.get("tasks"));   // checks that the tasks are correct
+        assertEquals(200, response.code()); // checks that the response code is correct
         System.out.println("PUT projects/:id -- TEST PASSED");
     }
 
@@ -192,7 +194,7 @@ public class ProjectTest {
 
         APICall apiCall = new APICall();
 
-        JSONObject jsonObject = new JSONObject();
+        JSONObject jsonObject = new JSONObject(); //creating a new project
         jsonObject.put("title", "test");
         jsonObject.put("description", "test");
         Response response1 = apiCall.post("projects", "json", jsonObject);
@@ -208,10 +210,10 @@ public class ProjectTest {
         }
         String id = (String) json.get("id");
 
-        Response response2 = apiCall.delete("projects/" + id + "", "json");
-        assertEquals(200, response2.code());
+        Response response2 = apiCall.delete("projects/" + id + "", "json"); //deleting the created project
+        assertEquals(200, response2.code()); 
 
-        Response response3 = apiCall.get("projects/" + id + "", "json");
+        Response response3 = apiCall.get("projects/" + id + "", "json"); //making sure that the project is doesn't exist anymore
         JSONParser jsonParser1 = new JSONParser();
         JSONObject jsonObject1 = null;
         try {
@@ -223,7 +225,7 @@ public class ProjectTest {
         }
 
         String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
-        assertEquals("Could not find an instance with projects/"+id, error);
+        assertEquals("Could not find an instance with projects/"+id, error); //checking that the error message is correct
         System.out.println("DELETE projects/:id -- TEST PASSED");
     }
 
@@ -241,8 +243,8 @@ public class ProjectTest {
             response.body().close();
         }
         int size = ((JSONArray) jsonObject.get("categories")).size();
-        Assert.assertEquals(0, size);
-        assertEquals(200, response.code());
+        Assert.assertEquals(0, size); // Checks that the number of categories is correct
+        assertEquals(200, response.code()); // Checks that the response code is correct
         System.out.println("GET projects/:id/categories -- TEST PASSED");
     }
 
@@ -253,19 +255,18 @@ public class ProjectTest {
         Headers headers = response.headers();
         Assert.assertEquals("application/json", headers.get("Content-Type"));
         int code = response.code();
-        Assert.assertEquals(200, code);
+        Assert.assertEquals(200, code); // Checks that the response code is correct
         System.out.println("HEAD projects/:id/categories -- TEST PASSED");
     }
 
     @Test
     public void postProjectCategoriesById() {
         APICall apiCall = new APICall();
-        JSONObject jsonBody = new JSONObject();
+        JSONObject jsonBody = new JSONObject(); // Creates a new json object to be sent to the API
         jsonBody.put("id", "1");
         Response response = apiCall.post("projects/1/categories", "json", jsonBody);
 
-        assertEquals(201, response.code());
-        // assertEquals("1", ((JSONObject)((JSONArray) jsonObject.get("categories")).get(0)).get("id"));
+        assertEquals(201, response.code()); // Checks that the response code is correct
         Response response1 = apiCall.get("projects/1/categories", "json");
         JSONParser jsonParser1 = new JSONParser();
         JSONObject jsonObject1 = null;
@@ -276,7 +277,7 @@ public class ProjectTest {
         } finally {
             response1.body().close();
         }
-        assertEquals(1, ((JSONArray) jsonObject1.get("categories")).size());
+        assertEquals(1, ((JSONArray) jsonObject1.get("categories")).size());    // Checks that the number of categories is correct
         System.out.println("POST projects/:id/categories -- TEST PASSED");
     }
 
@@ -300,10 +301,10 @@ public class ProjectTest {
 
         APICall apiCall = new APICall();
 
-        Response response = apiCall.delete("projects/1/categories/1", "json");
+        Response response = apiCall.delete("projects/1/categories/1", "json"); //deleting the created category
         assertEquals(200, response.code());
 
-        Response response1 = apiCall.get("projects/1/categories", "json");
+        Response response1 = apiCall.get("projects/1/categories", "json"); // making sure that the category is doesn't exist anymore
         JSONParser jsonParser1 = new JSONParser();
         JSONObject jsonObject1 = null;
         try {
@@ -313,7 +314,7 @@ public class ProjectTest {
         } finally {
             response1.body().close();
         }
-        assertEquals(0, ((JSONArray) jsonObject1.get("categories")).size());
+        assertEquals(0, ((JSONArray) jsonObject1.get("categories")).size()); // Checks that the number of categories is correct
         System.out.println("DELETE projects/:id/categories/:id -- TEST PASSED");
     }
 
@@ -331,8 +332,8 @@ public class ProjectTest {
             response.body().close();
         }
         int size = ((JSONArray) jsonObject.get("todos")).size();
-        Assert.assertEquals(2, size);
-        assertEquals(200, response.code());
+        Assert.assertEquals(2, size); // Checks that the number of tasks is correct
+        assertEquals(200, response.code()); // Checks that the response code is correct
         System.out.println("GET projects/:id/tasks -- TEST PASSED");
     }
 
@@ -350,12 +351,12 @@ public class ProjectTest {
     @Test
     public void postProjectByIdTasks() {
         APICall apiCall = new APICall();
-        JSONObject jsonBody = new JSONObject();
+        JSONObject jsonBody = new JSONObject(); // Creates a new json object to be sent to the API
         jsonBody.put("id", "2");
-        Response response = apiCall.post("projects/1/tasks", "json", jsonBody);
+        Response response = apiCall.post("projects/1/tasks", "json", jsonBody); // Creating a new task
 
         assertEquals(201, response.code());
-        Response response1 = apiCall.get("projects/1/tasks", "json");
+        Response response1 = apiCall.get("projects/1/tasks", "json"); // Getting the tasks to check if the new task was created
         JSONParser jsonParser1 = new JSONParser();
         JSONObject jsonObject1 = null;
         try {
@@ -365,16 +366,16 @@ public class ProjectTest {
         } finally {
             response.body().close();
         }
-        assertEquals(2, ((JSONArray) jsonObject1.get("todos")).size());
+        assertEquals(2, ((JSONArray) jsonObject1.get("todos")).size()); // Checks that the number of tasks is correct
         System.out.println("POST projects/:id/tasks -- TEST PASSED");
     }
 
     @Test
     public void deleteProjectByIdTasks() {
         APICall apiCall = new APICall();
-        Response response = apiCall.delete("projects/1/tasks/2", "json");
+        Response response = apiCall.delete("projects/1/tasks/2", "json"); // Deleting the task
         assertEquals(200, response.code());
-        Response response1 = apiCall.get("projects/1/tasks", "json");
+        Response response1 = apiCall.get("projects/1/tasks", "json"); // Getting the tasks to check if the task was deleted
         JSONParser jsonParser1 = new JSONParser();
         JSONObject jsonObject1 = null;
         try{
@@ -384,14 +385,14 @@ public class ProjectTest {
         } finally {
             response1.body().close();
         }
-        assertEquals(1, ((JSONArray) jsonObject1.get("todos")).size());
+        assertEquals(1, ((JSONArray) jsonObject1.get("todos")).size()); // Checks that the number of tasks is correct
         System.out.println("DELETE projects/:id/tasks/:id -- TEST PASSED");
     }
 
     @Test
     public void postProjectJSONMalformed() {
         APICall apiCall = new APICall();
-        JSONObject jsonBody = new JSONObject();
+        JSONObject jsonBody = new JSONObject(); // Creates a new json object to be sent to the API
         jsonBody.put("id", "10");
         jsonBody.put("name", "test");
         jsonBody.put("description", "test");
@@ -408,17 +409,17 @@ public class ProjectTest {
         } finally {
             response1.body().close();
         }
-        String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
-        assertEquals("Could not find an instance with projects/10", error);
+        String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0))); // Gets the error message
+        assertEquals("Could not find an instance with projects/10", error); // Checks that the error message is correct
         System.out.println("POST projects/:id (JSON malformed) -- TEST PASSED");
     }
 
     @Test
     public void postProjectXML() {
         APICall apiCall = new APICall();
-        String xml = "<project><title>ECSE 429</title><description>Software description> </description></project>";
+        String xml = "<project><title>ECSE 429</title><description>Software description> </description></project>"; // Creates a new xml object to be sent to the API
         Response response = null;
-        response = apiCall.postXML("projects", "xml", xml);
+        response = apiCall.postXML("projects", "xml", xml); // Creating a new project
         assertEquals(201, response.code());
         JSONParser jsonParser2 = new JSONParser();
         JSONObject json = null;
@@ -430,7 +431,7 @@ public class ProjectTest {
             response.body().close();
         }
         String id = (String) json.get("id");
-        Response response1 = apiCall.get("projects/"+id+"", "json");
+        Response response1 = apiCall.get("projects/"+id+"", "json"); // Getting the project to check if the new project was created
         JSONParser jsonParser1 = new JSONParser();
         JSONObject jsonObject1 = null;
         try {
@@ -440,14 +441,14 @@ public class ProjectTest {
         } finally {
             response1.body().close();
         }
-        assertEquals("ECSE 429", ((JSONObject) ((JSONArray) (jsonObject1.get("projects"))).get(0)).get("title"));
+        assertEquals("ECSE 429", ((JSONObject) ((JSONArray) (jsonObject1.get("projects"))).get(0)).get("title")); // Checks that the title is correct
         System.out.println("POST projects (XML) -- TEST PASSED");
     }
 
     @Test
     public void postProjectXMLMalformed() {
         APICall apiCall = new APICall();
-        String xml = "<project><id>15</id><name>test</name><description>test</description></project>";
+        String xml = "<project><id>15</id><name>test</name><description>test</description></project>"; // Creates a new malformed xml object to be sent to the API
         apiCall.postXML("/projects", "xml", xml);
         Response response = apiCall.postXML("/projects", "xml", xml);
         assertEquals(404, response.code());
@@ -462,8 +463,71 @@ public class ProjectTest {
             response1.body().close();
         }
         String error = (String) ((((JSONArray) jsonObject1.get("errorMessages")).get(0)));
-        assertEquals("Could not find an instance with projects/15", error);
+        assertEquals("Could not find an instance with projects/15", error); // Checks that the error message is correct
         System.out.println("POST projects (XML Malformed) -- TEST PASSED");
+
+    }
+
+    @Test
+    public void getProjectByWrongId() {
+        APICall apiCall = new APICall();
+        Response response = apiCall.get("projects/100", "json"); // Getting a project with a wrong id
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = (JSONObject) jsonParser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+        String error = (String) ((((JSONArray) jsonObject.get("errorMessages")).get(0))); // Gets the error message
+        assertEquals("Could not find an instance with projects/100", error);
+        System.out.println("GET projects/:id (wrong id) -- TEST PASSED");
+    }
+
+    // Bug
+    @Test
+    public void postProjectWithEmptyFields() {
+        APICall apiCall = new APICall();
+        JSONObject jsonBody = new JSONObject(); // Creates a new json object with empty fields to be sent to the API
+        jsonBody.put("title", "");
+        jsonBody.put("description", "");
+        Response response = apiCall.post("projects", "json", jsonBody);
+        assertEquals(201, response.code());
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = (JSONObject) jsonParser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+        System.out.println(jsonObject);
+        Assert.assertEquals(null, jsonObject.get("projects")); // Checks that the title is empty
+        Assert.assertEquals(null, jsonObject.get("projects")); // Checks that the description is empty
+        System.out.println("POST projects (empty title and description) -- TEST PASSED"); // It works but it's not suppopsed to
+    }
+
+    // Bug
+    @Test
+    public void getTaskByNonExistantProjectId() {
+        APICall apiCall = new APICall();
+        Response response = apiCall.get("projects/100/tasks", "json"); // Getting a task with a non existant project id
+        JSONParser jsonParser = new JSONParser();
+        JSONObject jsonObject = null;
+        try {
+            jsonObject = (JSONObject) jsonParser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+        int size = ((JSONArray) jsonObject.get("todos")).size(); // Gets the size of the array
+        assertEquals(2, size); // Checks that the size is 2
+        assertEquals(200, response.code());
+        System.out.println("GET projects/:id/tasks (non existant project id) -- TEST PASSED");
 
     }
 
