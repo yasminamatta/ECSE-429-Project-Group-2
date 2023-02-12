@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @TestMethodOrder(MethodOrderer.Random.class)
 public class CategoriesTest {
@@ -1045,6 +1046,178 @@ public class CategoriesTest {
 
         Assert.assertEquals(0, Math.abs(categories[1] - categories[0]));
         System.out.println("DELETE categories/:id/projects/:id -- TEST PASSED");
+    }
+
+    @Test
+    public void postCategoriesJSONMalformed() {
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    size.body().close();
+                }
+                categories[0] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+        JSONObject js = new JSONObject();
+        js.put("description", "okhttp");
+        Response response = ap.post("categories", "json", js); // malformed JSON as no title field is provided
+        Assert.assertEquals(400, response.code()); // expect error
+
+        String responsePost = null;
+        try {
+            responsePost = response.body().string();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+        JSONObject json = null;
+        try {
+            JSONParser parser = new JSONParser();
+            json = (JSONObject) parser.parse(responsePost);
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+        Assert.assertEquals("title : field is mandatory", ((JSONArray) json.get("errorMessages")).get(0)); // verify error message
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    size2.body().close();
+                }
+                categories[1] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+        Assert.assertEquals(0, Math.abs(categories[1] - categories[0])); // verify no new object created
+        System.out.println("POST categories (JSON Malformed) -- TEST PASSED");
+    }
+
+    @Test
+    public void postCategoryXML() {
+        APICall apiCall = new APICall();
+        String xml = "<todo><title>ECSE 429</title><description>Software Validation</description></todo>";
+        Response response = apiCall.postXML("categories", "xml", xml); // request body as XML
+        assertTrue(Arrays.asList(successCodes).contains(response.code()));
+        JSONParser jsonParser2 = new JSONParser();
+        JSONObject json = null;
+        try{
+            json = (JSONObject) jsonParser2.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+        String id = (String) json.get("id");
+        Response response1 = apiCall.get("categories/"+id, "json");
+        JSONParser jsonParser1 = new JSONParser();
+        JSONObject jsonObject1 = null;
+        try {
+            jsonObject1 = (JSONObject) jsonParser1.parse(response1.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response1.body().close();
+        }
+        assertEquals("ECSE 429", ((JSONObject) ((JSONArray) (jsonObject1.get("categories"))).get(0)).get("title")); // verify fields of newly created category
+        System.out.println("POST categories (XML) -- TEST PASSED");
+    }
+
+    @Test
+    public void postCategoryXMLMalformed() {
+        APICall apiCall = new APICall();
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = apiCall.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    size.body().close();
+                }
+                categories[0] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+        String xml = "<todo><description>test</description></todo>";
+        apiCall.postXML("/todos", "xml", xml); // malformed XML, no title provided
+        Response response = apiCall.postXML("/categories", "xml", xml);
+        assertEquals(404, response.code()); // expect error
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = apiCall.get("categories", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+                finally {
+                    size2.body().close();
+                }
+                categories[1] = ((JSONArray)(json.get("categories"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+        Assert.assertEquals(0, Math.abs(categories[1] - categories[0])); // no new object created
+        System.out.println("POST categories (XML Malformed) -- TEST PASSED");
     }
 
 }
