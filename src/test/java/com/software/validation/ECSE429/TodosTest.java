@@ -867,10 +867,10 @@ public class TodosTest {
     }
 
     @Test
-    public void getTasksOfTodoByBug() {
+    public void getTasksOfTodoByIdBug() {
 
         APICall ap = new APICall();
-        Response response = ap.get("todos/2000/tasksof", "json"); // Requesting all project related to todos of ID=1 by relationship tasksof
+        Response response = ap.get("todos/2000/tasksof", "json"); // Requesting all project related to todos of ID=2000 by relationship tasksof
         JSONParser parser = new JSONParser();
         JSONObject json = null;
         try {
@@ -1190,6 +1190,29 @@ public class TodosTest {
         int size = ((JSONArray)(json.get("categories"))).size();
         Assert.assertEquals(1, size); // only one category is related to the todos by default
         System.out.println("GET todos/:id/categories -- TEST PASSED");
+
+    }
+
+    @Test
+    public void getCategoriesOfTodoByIdBug() {
+
+        APICall ap = new APICall();
+        Response response = ap.get("todos/2000/categories", "json"); // Requesting all project related to todos of ID=2000 by relationship tasksof
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        Assert.assertEquals(1, ((JSONArray)json.get("categories")).size()); // no category should be related to todos 2000 as object does not exist
+
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // status code should not be ok
+        System.out.println("GET todos/:id/categories (BUG) -- DEMONSTRATED");
 
     }
 

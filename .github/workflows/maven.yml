@@ -6,7 +6,7 @@
 # separate terms of service, privacy policy, and support
 # documentation.
 
-name: Java CI with Maven
+name: JUnit 5 tests for thingify API
 
 on:
   push:
@@ -28,6 +28,6 @@ jobs:
         distribution: 'temurin'
         cache: maven
 
-    - name: Run JUnit tests for thingify API
+    - name: Run unit tests
       run:
         mvn test
