@@ -7,20 +7,14 @@ import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.json.simple.parser.ParseException;
-import org.junit.AfterClass;
-import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.Assert;
-import org.junit.jupiter.api.BeforeAll;
-import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -236,6 +230,28 @@ public class TodosTest {
     }
 
     @Test
+    public void getTodoByWrongId() {
+        APICall ap = new APICall();
+        Response response = ap.get("todos/2000", "json"); // wrong ID as path variable
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        String error = (String) ((JSONArray)(json.get("errorMessages"))).get(0);
+        Assert.assertEquals("Could not find an instance with todos/2000", error);
+
+        int code = response.code();
+        Assert.assertFalse(Arrays.asList(successCodes).contains(code)); // expect error
+        System.out.println("GET todos/:id (Wrong ID) -- TEST PASSED");
+    }
+
+    @Test
     public void headTodoById() {
         APICall api = new APICall();
         Response response = api.head("todos/2", "json"); // query done with ID as path variable
@@ -247,6 +263,98 @@ public class TodosTest {
         int code = response.code();
         Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // check if HTML code is ok
         System.out.println("HEAD todos/:id -- TEST PASSED");
+    }
+
+    @Test
+    public void headTodoByWrongId() {
+        APICall api = new APICall();
+        Response response = api.head("todos/2000", "json"); // query done with ID as path variable
+        Headers headers = response.headers();
+
+        Assert.assertEquals(4, headers.size()); // expect 4 headers
+        Assert.assertEquals("application/json", headers.get("Content-Type").toString());
+
+        int code = response.code();
+        Assert.assertFalse(Arrays.asList(successCodes).contains(code)); // expect error
+        System.out.println("HEAD todos/:id (Wrong ID) -- TEST PASSED");
+    }
+
+    @Test
+    public void postTodoByWrongId() {
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                todos[0] = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+        JSONObject js = new JSONObject();
+        js.put("title", "scan homework");
+        js.put("description", "scan every page");
+        Response response = ap.post("todos/2000", "json", js); // posting to todos with ID that does not exist in system
+
+        JSONObject responsePost = null;
+        JSONParser parser = new JSONParser();
+        try {
+            responsePost = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+
+        String error = (String) ((JSONArray)(responsePost.get("errorMessages"))).get(0);
+        Assert.assertEquals("No such todo entity instance with GUID or ID 2000 found", error);
+
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size2.body().close();
+                }
+                todos[1] = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+        int code = response.code();
+        Assert.assertFalse(Arrays.asList(successCodes).contains(code)); // expect error
+
+        Assert.assertEquals(0, Math.abs(todos[1] - todos[0])); // check that no new todos was created
+        System.out.println("POST todos/:id (Wrong ID) -- TEST PASSED");
+
     }
 
     @Test
@@ -451,6 +559,97 @@ public class TodosTest {
     }
 
     @Test
+    public void putTodoByWrongId() {
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                todos[0] = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        JSONObject js = new JSONObject();
+        js.put("title", "shred papers");
+        js.put("description", "shred each paper into 100 pieces");
+        js.put("doneStatus", false);
+        JSONObject tasksof = new JSONObject();
+        tasksof.put("id", "1");
+        js.put("tasksof", tasksof);
+        Response response = ap.put("todos/2000", "json", js); // using id = 2. Should completely replace the current entry with ID=2.
+
+        String responsePost = null;
+        try {
+            responsePost = response.body().string();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        int code = response.code();
+        Assert.assertFalse(Arrays.asList(successCodes).contains(code)); // expect error
+        JSONObject json = null;
+        try {
+            JSONParser parser = new JSONParser();
+            json = (JSONObject) parser.parse(responsePost);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+
+        String error = (String) ((JSONArray)(json.get("errorMessages"))).get(0);
+        Assert.assertEquals("Invalid GUID for 2000 entity todo", error);
+
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size2.body().close();
+                }
+                todos[1] = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+        Assert.assertEquals(0, Math.abs(todos[1] - todos[0])); // no new entry should be created. Only the body of an existing todos should completely change.
+        System.out.println("PUT todos/:id (Wrong ID) -- TEST PASSED");
+
+    }
+
+    @Test
     public void deleteTodoById() {
         APICall ap = new APICall();
         Thread t1 = new Thread(new Runnable() {
@@ -530,6 +729,83 @@ public class TodosTest {
     }
 
     @Test
+    public void deleteTodoByWrongId() {
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                todos[0] = ((JSONArray)(json.get("todos"))).size(); // getting number of categories present before 1 entry is deleted
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        Response response = ap.delete("todos/2000", "json"); // delete todos with ID=1
+
+        int code = response.code();
+        Assert.assertFalse(Arrays.asList(successCodes).contains(code)); // Ensure HTML response is not ok
+
+
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        String error = (String) ((((JSONArray)json.get("errorMessages")).get(0)));
+        Assert.assertEquals("Could not find any instances with todos/2000", error); // returning error as expected
+
+
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size2.body().close();
+                }
+                todos[1] = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+        Assert.assertEquals(0, Math.abs(todos[1] - todos[0])); // the difference should be 0, between what the total number of initial todos and the current number
+        System.out.println("DELETE todos/:id (Wrong ID) -- TEST PASSED");
+
+    }
+
+    @Test
     public void getTasksOfTodoById() {
 
         int counter = 0;
@@ -588,6 +864,29 @@ public class TodosTest {
 
         Assert.assertTrue(related); // verifying the relationship from project side
         System.out.println("GET todos/:id/tasksof -- TEST PASSED");
+
+    }
+
+    @Test
+    public void getTasksOfTodoByBug() {
+
+        APICall ap = new APICall();
+        Response response = ap.get("todos/2000/tasksof", "json"); // Requesting all project related to todos of ID=1 by relationship tasksof
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        Assert.assertEquals(2, ((JSONArray)json.get("projects")).size()); // no project should be related to todos 2000 as object does not exist
+
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // status code should not be ok
+        System.out.println("GET todos/:id/tasksof (BUG) -- DEMONSTRATED");
 
     }
 
@@ -906,10 +1205,19 @@ public class TodosTest {
         Assert.assertEquals("application/json", headers.get("Content-Type").toString());
         int code = response.code();
         Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // check if HTML code is ok
-
-
         System.out.println("HEAD todos/:id/categories -- TEST PASSED");
+    }
 
+    @Test
+    public void headCategoriesOfTodoByWrongIdBug() {
+        APICall ap = new APICall();
+        Response response = ap.head("todos/200/categories", "json"); // querying categories related to todos with ID=1
+        Headers headers = response.headers();
+        Assert.assertEquals(4, headers.size()); // expect 4 headers regardless
+        Assert.assertEquals("application/json", headers.get("Content-Type").toString());
+        int code = response.code();
+        Assert.assertTrue(Arrays.asList(successCodes).contains(code)); // status code should not be OK
+        System.out.println("HEAD todos/:id/categories (BUG) -- DEMONSTRATED");
     }
 
     @Test
