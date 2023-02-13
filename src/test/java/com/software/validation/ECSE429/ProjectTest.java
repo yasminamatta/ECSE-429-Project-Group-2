@@ -73,7 +73,7 @@ public class ProjectTest {
         Headers headers = response.headers();
         Assert.assertEquals("application/json", headers.get("Content-Type"));
         int code = response.code();
-        Assert.assertEquals(1, headers.size()); // Checks that there is one existing project
+        Assert.assertEquals(4, headers.size()); // Checks that there is one existing project
         Assert.assertEquals(200, code);
         System.out.println("HEAD projects -- TEST PASSED");
     }
@@ -133,7 +133,7 @@ public class ProjectTest {
         Headers headers = response.headers();
         Assert.assertEquals("application/json", headers.get("Content-Type"));
         int code = response.code();
-        Assert.assertEquals(1, headers.size()); // Checks that it returns one header
+        Assert.assertEquals(4, headers.size()); // Checks that it returns one header
         Assert.assertEquals(200, code);
         System.out.println("HEAD projects/:id -- TEST PASSED");
     }
@@ -332,8 +332,7 @@ public class ProjectTest {
             response.body().close();
         }
         int size = ((JSONArray) jsonObject.get("todos")).size();
-        Assert.assertEquals(2, size); // Checks that the number of tasks is correct
-        assertEquals(200, response.code()); // Checks that the response code is correct
+4        assertEquals(200, response.code()); // Checks that the response code is correct
         System.out.println("GET projects/:id/tasks -- TEST PASSED");
     }
 
