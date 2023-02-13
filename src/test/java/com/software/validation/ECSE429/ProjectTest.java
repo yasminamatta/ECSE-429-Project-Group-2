@@ -332,7 +332,7 @@ public class ProjectTest {
             response.body().close();
         }
         int size = ((JSONArray) jsonObject.get("todos")).size();
-4        assertEquals(200, response.code()); // Checks that the response code is correct
+        assertEquals(200, response.code()); // Checks that the response code is correct
         System.out.println("GET projects/:id/tasks -- TEST PASSED");
     }
 
