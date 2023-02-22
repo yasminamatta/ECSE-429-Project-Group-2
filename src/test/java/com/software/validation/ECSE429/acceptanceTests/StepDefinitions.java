@@ -1,4 +1,4 @@
-package com.software.validation.ECSE429.acceptanceTests.todos;
+package com.software.validation.ECSE429.acceptanceTests;
 
 import io.cucumber.java.en.Given;
 import org.junit.Assert;
