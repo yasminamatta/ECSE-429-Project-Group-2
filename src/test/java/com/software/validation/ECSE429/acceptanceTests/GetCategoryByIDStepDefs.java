@@ -13,7 +13,7 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetCategoryByIDStepDefs extends CucumberFeaturesTestRunner{
+public class GetCategoryByIDStepDefs extends CucumberRunnerTest {
 
     List<JSONObject> categoryList = null;
     String error = null;
@@ -87,7 +87,7 @@ public class GetCategoryByIDStepDefs extends CucumberFeaturesTestRunner{
 
     @Then("the category shall have title {string} and description {string}") // NORMAL FLOW
     public void category_shall_have_title_and_description(String CategoryTitle, String CategoryDescription){
-        for (var i:categoryList) {
+        for (JSONObject i:categoryList) {
             String title = (String) i.get("title");
             String description = (String) i.get("description");
 

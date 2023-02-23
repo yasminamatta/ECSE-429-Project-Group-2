@@ -13,12 +13,11 @@ import org.junit.Assert;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StepDefinitions extends CucumberFeaturesTestRunner {
+public class StepDefinitions extends CucumberRunnerTest {
     //////////////////// TODOS ///////////////////////////
     List<JSONObject> todosList = null;
     String error = null;
