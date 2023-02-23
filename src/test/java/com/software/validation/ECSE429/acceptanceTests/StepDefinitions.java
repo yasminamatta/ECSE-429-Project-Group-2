@@ -8,16 +8,24 @@ import okhttp3.Response;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.junit.Assert;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
-public class StepDefinitions extends CucumberFeaturesTestRunner {
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
+public class StepDefinitions extends CucumberFeaturesTestRunner {
+    //////////////////// TODOS ///////////////////////////
     List<JSONObject> todosList = null;
     String error = null;
+    int previousTotalTodos = -1;
+    int latestTotalTodos = -1;
+
+    //////////////////// TODOS ///////////////////////////
 
     @Given("the server is running")
     public void the_server_is_running() {
@@ -53,12 +61,12 @@ public class StepDefinitions extends CucumberFeaturesTestRunner {
 
         int code = response.code();
         Assert.assertEquals(200, code);
-        System.out.println("GET todos -- TEST PASSED");
+        //System.out.println("GET todos -- TEST PASSED");
 
     }
 
-    @When("the user makes a query to get an item by ID {string}")
-    public void the_user_makes_a_query_to_get_an_item_by_ID(String todoId) {
+    @When("the user makes a query to get a todo item by ID {string}")
+    public void the_user_makes_a_query_to_get_a_todo_item_by_ID(String todoId) {
         APICall ap = new APICall();
         Response response = ap.get("todos/" + todoId, "json"); // ID as path variable
         JSONParser parser = new JSONParser();
@@ -73,14 +81,14 @@ public class StepDefinitions extends CucumberFeaturesTestRunner {
 
         int code = response.code();
 
-        if(code == 200) {
+        if (code == 200 | code == 201) {
             todosList = new ArrayList<>();
             JSONArray todos = ((JSONArray) (json.get("todos")));
             for (int t = 0; t < todos.size(); t++) {
                 todosList.add((JSONObject) todos.get(t));
             }
         } else {
-            error = (String) ((JSONArray)(json.get("errorMessages"))).get(0);
+            error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
         }
     }
 
@@ -115,6 +123,250 @@ public class StepDefinitions extends CucumberFeaturesTestRunner {
         }
     }
 
+    @When("the user makes a query to create a todo item with title {string} and description {string}")
+    public void the_user_makes_a_query_to_create_a_todo_item_with_title_and_description(String todoTitle, String todoDescription) {
 
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() { //Allows for the called GET and POST methods to run in a sequence
+            @Override
+            public void run() {
+                Response size = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                previousTotalTodos = ((JSONArray) (json.get("todos"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join(); // allows for GET to be completed first, before then doing the POST method
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
+        js.put("title", todoTitle);
+        js.put("description", todoDescription);
+        Response response = ap.post("todos", "json", js);
+
+        String responsePost = null;
+        try {
+            responsePost = response.body().string();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        int code = response.code();
+        if (code == 200 | code == 201) {
+
+            try {
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(responsePost);
+
+
+                Response size = ap.get("todos/" + json.get("id"), "json");
+                JSONParser parserResponse = new JSONParser();
+                JSONObject jsonResponse = null;
+                try {
+                    jsonResponse = (JSONObject) parserResponse.parse(size.body().string()); // parse body into created JSON object
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                Assert.assertEquals(201, response.code());
+
+
+                todosList = new ArrayList<>();
+                JSONArray todos = ((JSONArray) (jsonResponse.get("todos")));
+                for (int t = 0; t < todos.size(); t++) {
+                    todosList.add((JSONObject) todos.get(t));
+                }
+
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            JSONParser parser = new JSONParser();
+            JSONObject json = null;
+            try {
+                 json = (JSONObject) parser.parse(responsePost);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
+        }
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size2.body().close();
+                }
+                latestTotalTodos = ((JSONArray) (json.get("todos"))).size(); // add the new size of todos to array
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+        // System.out.println("POST todos -- TEST PASSED");
+
+    }
+
+    @Then("one todo item shall be created and returned")
+    public void one_todo_item_shall_be_created_and_returned() {
+        Assert.assertEquals(1, latestTotalTodos - previousTotalTodos);
+    }
+
+    @Then("no todo item shall be created")
+    public void no_todo_item_shall_be_created() {
+        Assert.assertEquals(0, latestTotalTodos - previousTotalTodos);
+    }
+
+
+
+    @When("the user makes a query to create a todo item with only title {string}")
+    public void the_user_makes_a_query_to_create_a_todo_item_with_only_title(String todoTitle) {
+
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() { //Allows for the called GET and POST methods to run in a sequence
+            @Override
+            public void run() {
+                Response size = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                previousTotalTodos = ((JSONArray) (json.get("todos"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join(); // allows for GET to be completed first, before then doing the POST method
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
+        js.put("title", todoTitle);
+        Response response = ap.post("todos", "json", js);
+
+        String responsePost = null;
+        try {
+            responsePost = response.body().string();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        int code = response.code();
+        if (code == 200 | code == 201) {
+
+            try {
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(responsePost);
+
+
+                Response size = ap.get("todos/" + json.get("id"), "json");
+                JSONParser parserResponse = new JSONParser();
+                JSONObject jsonResponse = null;
+                try {
+                    jsonResponse = (JSONObject) parserResponse.parse(size.body().string()); // parse body into created JSON object
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                Assert.assertEquals(201, response.code());
+
+
+                todosList = new ArrayList<>();
+                JSONArray todos = ((JSONArray) (jsonResponse.get("todos")));
+                for (int t = 0; t < todos.size(); t++) {
+                    todosList.add((JSONObject) todos.get(t));
+                }
+
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            JSONParser parser = new JSONParser();
+            JSONObject json = null;
+            try {
+                json = (JSONObject) parser.parse(responsePost);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
+        }
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size2.body().close();
+                }
+                latestTotalTodos = ((JSONArray) (json.get("todos"))).size(); // add the new size of todos to array
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+        // System.out.println("POST todos -- TEST PASSED");
+
+    }
+
+
+    @When("description shall be set to {string} and doneStatus to {string}")
+    public void description_shall_be_set_to_and_doneStatus_to(String todoDescription, String todoDoneStatus) {
+        for(JSONObject obj: todosList) {
+            Assert.assertEquals(todoDescription, obj.get("description"));
+            Assert.assertEquals(todoDoneStatus, obj.get("doneStatus"));
+        }
+    }
     ////////////////// TODOS /////////////////////////
 }
