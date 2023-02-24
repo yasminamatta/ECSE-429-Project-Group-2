@@ -20,7 +20,7 @@ Feature: Get project by id
         
         # Error Flow
         Scenario: Get project by id that does not exist
-            When the user makes a GET request to "/projects/999"
+            When the user makes a GET request to "/projects/<id>"
             Then no project shall be returned
             And an error message with content "<error message>" shall be returned
 
