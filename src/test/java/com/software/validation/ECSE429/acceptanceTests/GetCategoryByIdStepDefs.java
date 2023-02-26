@@ -13,7 +13,7 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetCategoryByIDStepDefs extends CucumberRunnerTest {
+public class GetCategoryByIdStepDefs extends CucumberRunnerTest {
 
     List<JSONObject> categoryList = null;
     String error = null;
@@ -49,8 +49,6 @@ public class GetCategoryByIDStepDefs extends CucumberRunnerTest {
 
         int code = response.code();
         Assert.assertEquals(200, code);
-        System.out.println("GET categories -- TEST PASSED");
-
     }
 
     @When("the user initiates the query of the category with ID {string}")

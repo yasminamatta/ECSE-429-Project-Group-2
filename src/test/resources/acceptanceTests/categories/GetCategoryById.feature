@@ -1,5 +1,5 @@
 Feature: Get Category by ID
-  As a user, I want to get a category by ID so that I can access the contents of the specific category.
+  As a user, I want to GET a category by ID so that I can access the contents of the specific category.
 
   Background:
     Given the Todo Manager system is running
