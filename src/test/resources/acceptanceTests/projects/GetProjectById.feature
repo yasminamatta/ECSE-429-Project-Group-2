@@ -17,7 +17,7 @@ Feature: Get project by id
             | id | name | description | completed | active | tasks     |
             | 1  | A    | A           | false     | true   | [{1}]     |
             | 2  | B    | B           | true      | false  | [{2}]     |
-        
+
         # Error Flow
         Scenario: Get project by id that does not exist
             When the user makes a GET request to "/projects/<id>"
@@ -28,4 +28,3 @@ Feature: Get project by id
                 | id  | error message                               |
                 | 12  | Could not find an instance with projects/12 |
 
-                

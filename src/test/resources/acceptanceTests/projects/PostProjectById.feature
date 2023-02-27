@@ -27,12 +27,12 @@ Feature: Update a project's information
 
     # Error flow
     Scenario: Update a project with an invalid field
-        When the user update a non-existing field "<nonExistingField>" to the project with id "<id>" 
+        When the user update a non-existing field "<nonExistingField>" to the project with id "<id>"
         Then the server should return an error message with content "<errorMessage>"
 
         Example:
             | id | nonExistingField | errorMessage               |
             | 1  | test             | Could not find field: test |
 
-    
-    
+
+

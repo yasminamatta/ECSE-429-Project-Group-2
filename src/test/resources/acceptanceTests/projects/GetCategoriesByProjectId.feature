@@ -14,7 +14,7 @@ Feature: Get categories by project id
         Example:
             | id | title  | description  |
             | 1  | office | office stuff |
-    
+
     # Alternative flow
     Scenario: Get categories by project id succesfully and categories is not linked to the project
         When the user makes a GET request to "/projects/<id>/categories"

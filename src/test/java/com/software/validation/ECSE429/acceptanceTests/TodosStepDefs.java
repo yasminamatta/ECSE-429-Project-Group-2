@@ -13,11 +13,12 @@ import org.junit.Assert;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
-public class StepDefinitions extends CucumberRunnerTest {
+public class TodosStepDefs extends CucumberRunnerTest {
     //////////////////// TODOS ///////////////////////////
     List<JSONObject> todosList = null;
     String error = null;
@@ -367,5 +368,115 @@ public class StepDefinitions extends CucumberRunnerTest {
             Assert.assertEquals(todoDoneStatus, obj.get("doneStatus"));
         }
     }
-    ////////////////// TODOS /////////////////////////
+
+
+    @Given("todo with id {string} is assigned to a category in the system")
+    public void todo_with_id_is_assigned_to_a_category_in_the_system(String todoId) {
+        APICall ap = new APICall();
+        Response response = ap.get("todos/" + todoId + "/categories", "json"); // Requesting all categories related to todos of ID=1
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        int code = response.code();
+        Assert.assertEquals(200, code); // check if the HTML response code is a success or not
+        int size = ((JSONArray)(json.get("categories"))).size();
+        Assert.assertEquals(1, size); // only one category is related to the todos by default
+    }
+
+    @When("the user makes a DELETE request to delete a category with id {string} of a todo with id {string}")
+    public void the_user_makes_a_DELETE_request_to_delete_a_category_with_id_of_a_todo_with_id (String categoryId, String todoId) {
+        APICall ap = new APICall();
+        String[] newTodoId = {""};
+        int counter = 0;
+        boolean related = false;
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Response responseOfTodos = ap.get("todos", "json");
+                JSONParser parserOfTodos = new JSONParser();
+                JSONObject jsonOfTodos = null;
+                try {
+                    jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    responseOfTodos.body().close();
+                }
+                previousTotalTodos = ((JSONArray)(jsonOfTodos.get("todos"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+        Response response = ap.delete("todos/" + todoId + "/categories/" + categoryId, "json"); // deleting relationship category with id=1 and todos with id=1.
+
+        int code = response.code();
+        if(code == 404) {
+            JSONParser parserOfTodos = new JSONParser();
+            JSONObject jsonOfTodos = null;
+            try {
+                jsonOfTodos = (JSONObject) parserOfTodos.parse(response.body().string());
+            } catch (Exception e) {
+                e.printStackTrace();
+            } finally {
+                response.body().close();
+            }
+            error = (String) ((JSONArray) (jsonOfTodos.get("errorMessages"))).get(0);
+        }
+
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+
+                Response responseOfTodos = ap.get("todos", "json");
+                JSONParser parserOfTodos = new JSONParser();
+                JSONObject jsonOfTodos = null;
+                try {
+                    jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    responseOfTodos.body().close();
+                }
+                latestTotalTodos = ((JSONArray)(jsonOfTodos.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+    }
+
+    @Then("the relationship between the category with id {string} and the todo with id {string} shall not exist in the system")
+    public void the_relationship_between_the_category_with_id_and_the_todo_with_id_shall_not_exist_in_the_system(String categoryId, String todoId) {
+        APICall ap = new APICall();
+        Response response = ap.get("todos/" + todoId + "/categories" + categoryId, "json");
+        int code = response.code();
+        Assert.assertEquals(404, code); // relationship deleted, hence cannot be found anymore
+    }
+
+    @Then("no todo item shall be created or deleted")
+    public void no_todo_item_shall_be_created_or_deleted() {
+        Assert.assertEquals(0, Math.abs(latestTotalTodos - previousTotalTodos)); // no new object created, only relationship modified
+    }
+
+
 }
