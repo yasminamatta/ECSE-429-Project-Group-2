@@ -61,7 +61,50 @@ public class TodosStepDefs extends CucumberRunnerTest {
 
         int code = response.code();
         Assert.assertEquals(200, code);
-        //System.out.println("GET todos -- TEST PASSED");
+
+    }
+
+    @Given("atleast one project exists in the system")
+    public void atleast_one_project_exists_in_the_system() {
+        APICall ap = new APICall();
+        Response response = ap.get("projects", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string()); // get todos as a response
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        int size = ((JSONArray) (json.get("projects"))).size();
+        Assert.assertTrue(size >= 1); // API initially has atleast 1 todos loaded in as default.
+
+        int code = response.code();
+        Assert.assertEquals(200, code);
+
+    }
+
+    @Given("atleast one category exists in the system")
+    public void atleast_one_category_exists_in_the_system() {
+        APICall ap = new APICall();
+        Response response = ap.get("categories", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string()); // get todos as a response
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        int size = ((JSONArray) (json.get("categories"))).size();
+        Assert.assertTrue(size >= 1); // API initially has atleast 1 todos loaded in as default.
+
+        int code = response.code();
+        Assert.assertEquals(200, code);
 
     }
 
@@ -476,6 +519,339 @@ public class TodosStepDefs extends CucumberRunnerTest {
     @Then("no todo item shall be created or deleted")
     public void no_todo_item_shall_be_created_or_deleted() {
         Assert.assertEquals(0, Math.abs(latestTotalTodos - previousTotalTodos)); // no new object created, only relationship modified
+    }
+
+    @Given("there exists todo with id {string} in the system that is not assigned project with id {string}")
+    public void there_exists_todo_with_id_in_the_system_that_is_not_assigned_project_with_id (String todoId, String projectId) {
+        APICall ap = new APICall();
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                previousTotalTodos = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        Thread t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // deleting relationship tasksOf between todos with id=1 and projects with id=1.
+                Response res = ap.delete("todos/" + todoId + "/tasksof/" + projectId, "json");
+
+                int code = res.code();
+                Assert.assertEquals(200, code); // check whether successful or not
+            }
+        });
+
+        t4.start();
+        try {
+            t4.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size2.body().close();
+                }
+                latestTotalTodos = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+    }
+
+    @When("the user makes a POST request to assign a todo with id {string} to a project with id {string}")
+    public void the_user_makes_a_POST_request_to_assign_a_todo_with_id_to_a_project_with_id(String todoId, String projectId) {
+        APICall ap = new APICall();
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                previousTotalTodos = ((JSONArray)(json.get("todos"))).size(); // getting the size of the categories before POST
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        Thread t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject relationBody = new JSONObject();
+                relationBody.put("id", projectId);
+
+                Response res = ap.post("todos/" + todoId + "/tasksof", "json", relationBody); // Establishing relationship using POST
+
+                int code = res.code();
+                if(code == 404) {
+                    JSONParser parserOfTodos = new JSONParser();
+                    JSONObject jsonOfTodos = null;
+                    try {
+                        jsonOfTodos = (JSONObject) parserOfTodos.parse(res.body().string());
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    } finally {
+                        res.body().close();
+                    }
+                    error = (String) ((JSONArray) (jsonOfTodos.get("errorMessages"))).get(0);
+                }
+            }
+        });
+
+        t4.start();
+        try {
+            t4.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size2.body().close();
+                }
+                latestTotalTodos = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+    }
+
+    @Then("a relationship named tasksof shall be created between project with id {string} and the todo with id {string}")
+    public void a_relationship_named_tasksof_shall_be_created_between_project_with_id_and_the_todo_with_id (String projectId, String todoId) {
+        boolean related = false;
+
+        APICall ap = new APICall();
+        Response response = ap.get("todos/" + todoId + "/tasksof", "json"); // Requesting all project related to todos of ID=1 by relationship tasksof
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        int size = ((JSONArray)(json.get("projects"))).size();
+        Assert.assertEquals(1, size); // the only project relate to the todos with id=1 returned
+        int code = response.code();
+        Assert.assertEquals(200, code); // check if the HTML response code is a success or not
+
+        int mapSize = ((JSONArray)(json.get("projects"))).size();
+        List<String> map = new ArrayList<>();
+        for(int i = 0; i < mapSize; i++) {
+            map.add("false");
+        }
+
+        for (Object projectArray : ((JSONArray)(json.get("projects")))) {
+
+            JSONObject projectObject = (JSONObject) projectArray;
+
+            String projId = (String) projectObject.get("id");
+            if(projId.equalsIgnoreCase(projectId)) {
+                Assert.assertTrue(projId.equalsIgnoreCase(projectId));
+                return;
+            }
+        }
+
+        Assert.assertTrue(related); // verifying the relationship from project side
+    }
+
+    @Then("a relationship named tasksof shall exist between project with id {string} and the todo with id {string}")
+    public void a_relationship_named_tasksof_shall_exist_between_project_with_id_and_the_todo_with_id (String todoId, String projectId) {
+        int counter = 0;
+        boolean related = false;
+
+        APICall ap = new APICall();
+        Response response = ap.get("todos/" + todoId + "/tasksof", "json"); // Requesting all project related to todos of ID=1 by relationship tasksof
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        int size = ((JSONArray)(json.get("projects"))).size();
+        Assert.assertEquals(1, size); // the only project relate to the todos with id=1 returned
+        int code = response.code();
+        Assert.assertEquals(200, code); // check if the HTML response code is a success or not
+
+        int mapSize = ((JSONArray)(json.get("projects"))).size();
+        List<String> map = new ArrayList<>();
+        for(int i = 0; i < mapSize; i++) {
+            map.add("false");
+        }
+
+        for (Object projectArray : ((JSONArray)(json.get("projects")))) {
+
+            JSONObject projectObject = (JSONObject) projectArray;
+
+            JSONArray tasks = (JSONArray) projectObject.get("tasks");
+
+            for (Object obj : tasks) {
+                JSONObject JSONobj = (JSONObject) obj;
+                String id = (String) JSONobj.get("id");
+                if(id.equals(projectId)){
+                    map.set(counter, "true");
+                    counter++;
+                    break;
+                }
+            }
+
+        }
+
+        for(String flag : map) {
+            if(flag.equalsIgnoreCase("false")) {
+                related = false;
+                break;
+            } else {
+                related = true;
+            }
+        }
+
+        Assert.assertTrue(related); // verifying the relationship from project side
+    }
+
+    @Given("there exists a tasksof relationship between todo with id {string} and project with id {string}")
+    public void there_exists_a_tasksof_relationship_between_todo_with_id_and_project_with_id (String todoId, String projectId) {
+        APICall ap = new APICall();
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                previousTotalTodos = ((JSONArray)(json.get("todos"))).size(); // getting the size of the categories before POST
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        Thread t4 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                JSONObject relationBody = new JSONObject();
+                relationBody.put("id", projectId);
+
+                Response res = ap.post("todos/" + todoId + "/tasksof", "json", relationBody); // Establishing relationship using POST
+
+                int code = res.code();
+                Assert.assertEquals(201, code); // Checking that it was successfully created
+            }
+        });
+
+        t4.start();
+        try {
+            t4.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("todos", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size2.body().close();
+                }
+                latestTotalTodos = ((JSONArray)(json.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
     }
 
 

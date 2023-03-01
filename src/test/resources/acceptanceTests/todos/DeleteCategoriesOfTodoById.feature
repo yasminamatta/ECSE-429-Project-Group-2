@@ -4,6 +4,7 @@ Feature: Delete a category of a todo by id
   Background:
     Given the server is running
     Given atleast one todo exists in the system
+    Given atleast one category exists in the system
 
 
   # Normal flow
