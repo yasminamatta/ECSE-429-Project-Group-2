@@ -1,6 +1,7 @@
 package com.software.validation.ECSE429.acceptanceTests;
 
 import com.software.validation.ECSE429.api.APICall;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.And;
@@ -30,10 +31,22 @@ public class PostProjectOfCategoryByIdStepDefs extends CucumberRunnerTest{
         Runtime rt = Runtime.getRuntime();
         try {
             Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
-            Thread.sleep(4000);
+            Thread.sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
-            Assert.assertEquals("Server", "error");
+            Assert.assertEquals("Running", "Error");
+        }
+    }
+
+    @After
+    public void resetEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
+            Thread.sleep(3000);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.assertEquals("Reset", "Error");
         }
     }
 

@@ -1,6 +1,8 @@
 package com.software.validation.ECSE429.acceptanceTests;
 
 import com.software.validation.ECSE429.api.APICall;
+import io.cucumber.java.After;
+import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -19,28 +21,36 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 public class TodosStepDefs extends CucumberRunnerTest {
-    //////////////////// TODOS ///////////////////////////
     List<JSONObject> todosList = null;
     String error = null;
     int previousTotalTodos = -1;
     int latestTotalTodos = -1;
 
-    //////////////////// TODOS ///////////////////////////
+    @After
+    public void resetEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
+            Thread.sleep(3000);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.assertEquals("Reset", "Error");
+        }
+    }
+
 
     @Given("the server is running")
     public void the_server_is_running() {
         Runtime rt = Runtime.getRuntime();
         try {
             Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
-            //System.out.println("Setting up environment");
-            Thread.sleep(4000);
+            Thread.sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
-            Assert.assertEquals("Server", "error");
+            Assert.assertEquals("Running", "Error");
         }
     }
 
-    ////////////////// TODOS /////////////////////////
 
     @Given("atleast one todo exists in the system")
     public void atleast_one_todo_exists_in_the_system() {
@@ -973,7 +983,7 @@ public class TodosStepDefs extends CucumberRunnerTest {
         } finally {
             size.body().close();
         }
-        Assert.assertTrue(((JSONArray)(json.get("categories"))).size() >= 1); // verify newly created relationship
+        Assert.assertTrue(((JSONArray)(json.get("categories"))).size() >= 1);
     }
 
     @Then("a relationship named categories shall exist between category with id {string} and the todo with id {string}")
