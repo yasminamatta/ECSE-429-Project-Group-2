@@ -854,5 +854,144 @@ public class TodosStepDefs extends CucumberRunnerTest {
         }
     }
 
+    @Given("there exists todo with id {string} in the system that is not assigned to any category")
+    public void there_exists_todo_with_id_in_the_system_that_is_not_assigned_to_any_category(String todoId) {
+        APICall ap = new APICall();
+        Response response = ap.get("todos/"+ todoId + "/categories", "json"); // Requesting all categories related to todos of ID=1
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(response.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            response.body().close();
+        }
+
+        int code = response.code();
+        Assert.assertEquals(200, code); // check if the HTML response code is a success or not
+        int size = ((JSONArray)(json.get("categories"))).size();
+        Assert.assertEquals(0, size); // no category is related to the todos by default
+    }
+
+    @When("the user makes a POST request to assign a todo with id {string} to a category with id {string}")
+    public void the_user_makes_a_POST_request_to_assign_a_todo_with_id_to_a_category_with_id (String todoId, String categoryId) {
+        APICall ap = new APICall();
+
+        Thread t1 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response responseOfTodos = ap.get("todos", "json");
+                JSONParser parserOfTodos = new JSONParser();
+                JSONObject jsonOfTodos = null;
+                try {
+                    jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    responseOfTodos.body().close();
+                }
+                previousTotalTodos = ((JSONArray)(jsonOfTodos.get("todos"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+        JSONObject js = new JSONObject();
+        js.put("id", categoryId);
+        Response response = ap.post("todos/" + todoId + "/categories", "json", js); // establishing new relationship
+
+        int code = response.code();
+        if(code == 404) {
+            JSONParser parser = new JSONParser();
+            JSONObject json = null;
+            try {
+                json = (JSONObject) parser.parse(response.body().string());
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+            error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
+        }
+
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response responseOfTodos = ap.get("todos", "json");
+                JSONParser parserOfTodos = new JSONParser();
+                JSONObject jsonOfTodos = null;
+                try {
+                    jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    responseOfTodos.body().close();
+                }
+                latestTotalTodos = ((JSONArray)(jsonOfTodos.get("todos"))).size();
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+    }
+    @Then("a relationship named categories shall be created between category with id {string} and the todo with id {string}")
+    public void a_relationship_named_categories_shall_be_created_between_category_with_id_and_the_todo_with_id(String categoryId, String todoId) {
+        APICall ap = new APICall();
+        Response size = ap.get("todos/"+todoId+"/categories", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(size.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            size.body().close();
+        }
+        Assert.assertTrue(((JSONArray)(json.get("categories"))).size() >= 1); // verify newly created relationship
+        Assert.assertEquals(categoryId, ((JSONObject)(((JSONArray)(json.get("categories"))).get(0))).get("id"));
+    }
+
+    @Given("there exists a categories relationship between todo with id {string} and a category")
+    public void there_exists_a_categories_relationship_between_todo_with_id_and_a_category(String todoId) {
+        APICall ap = new APICall();
+        Response size = ap.get("todos/"+todoId+"/categories", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(size.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            size.body().close();
+        }
+        Assert.assertTrue(((JSONArray)(json.get("categories"))).size() >= 1); // verify newly created relationship
+    }
+
+    @Then("a relationship named categories shall exist between category with id {string} and the todo with id {string}")
+    public void a_relationship_named_categories_exist_created_between_category_with_id_and_the_todo_with_id(String categoryId, String todoId) {
+        APICall ap = new APICall();
+        Response size = ap.get("todos/"+todoId+"/categories", "json");
+        JSONParser parser = new JSONParser();
+        JSONObject json = null;
+        try {
+            json = (JSONObject) parser.parse(size.body().string());
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            size.body().close();
+        }
+        Assert.assertTrue(((JSONArray)(json.get("categories"))).size() >= 1); // verify newly created relationship
+        Assert.assertEquals(categoryId, ((JSONObject)(((JSONArray)(json.get("categories"))).get(0))).get("id"));
+    }
+
 
 }
