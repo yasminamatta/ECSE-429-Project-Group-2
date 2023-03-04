@@ -63,14 +63,21 @@ public class TodosStepDefs extends CucumberRunnerTest {
         JSONParser parser = new JSONParser();
         JSONObject json = null;
         try {
-            json = (JSONObject) parser.parse(response.body().string()); // get todos as a response
+            if(response != null) {
+                json = (JSONObject) parser.parse(response.body().string()); // get todos as a response
+            }
         } catch (Exception e) {
-            e.printStackTrace();
+            Assert.assertTrue(false);
         } finally {
-            response.body().close();
+            if(response != null) {
+                response.body().close();
+            }
         }
 
-        int size = ((JSONArray) (json.get("todos"))).size();
+        int size = 0;
+        if(json != null) {
+            size = ((JSONArray) (json.get("todos"))).size();
+        }
         Assert.assertTrue(size >= 1); // API initially has atleast 1 todos loaded in as default.
 
         int code = response.code();
@@ -558,7 +565,7 @@ public class TodosStepDefs extends CucumberRunnerTest {
             JSONParser parserOfTodos = new JSONParser();
             JSONObject jsonOfTodos = null;
             try {
-                if(jsonOfTodos != null) {
+                if(response != null) {
                     jsonOfTodos = (JSONObject) parserOfTodos.parse(response.body().string());
                 }
             } catch (Exception e) {
