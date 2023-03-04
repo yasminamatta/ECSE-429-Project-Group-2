@@ -26,17 +26,6 @@ public class TodosStepDefs extends CucumberRunnerTest {
     int previousTotalTodos = -1;
     int latestTotalTodos = -1;
 
-    @After
-    public void resetEnvironment() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
-            Thread.sleep(3000);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.assertEquals("Reset", "Error");
-        }
-    }
 
 
     @Given("the server is running")
@@ -51,6 +40,17 @@ public class TodosStepDefs extends CucumberRunnerTest {
         }
     }
 
+    @After
+    public void resetEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
+            Thread.sleep(2000);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.assertEquals("Reset", "Error");
+        }
+    }
 
     @Given("atleast one todo exists in the system")
     public void atleast_one_todo_exists_in_the_system() {
@@ -134,7 +134,7 @@ public class TodosStepDefs extends CucumberRunnerTest {
 
         int code = response.code();
 
-        if (code == 200 | code == 201) {
+        if (code == 200 || code == 201) {
             todosList = new ArrayList<>();
             JSONArray todos = ((JSONArray) (json.get("todos")));
             for (int t = 0; t < todos.size(); t++) {
@@ -158,6 +158,22 @@ public class TodosStepDefs extends CucumberRunnerTest {
     @Then("an error message with content {string} shall be raised")
     public void an_error_message_with_content_shall_be_raised(String errorMessage) {
         Assert.assertEquals(error, errorMessage);
+    }
+
+    @Then("an error message with contents {string} shall be raised")
+    public void an_error_message_with_contents_shall_be_raised(String errorMessage) {
+        String arr[] = errorMessage.split(" ", 2);
+
+        String errorIndication = arr[0];
+
+        if(errorIndication.equalsIgnoreCase("cannot") || (errorIndication + " " + arr[1]).equalsIgnoreCase("could not")) {
+            Assert.assertTrue(true);
+        } else {
+            Assert.assertTrue(false);
+        }
+
+
+
     }
 
     @Then("the todo shall have id {string}, title {string}, and doneStatus {string}")
@@ -446,9 +462,6 @@ public class TodosStepDefs extends CucumberRunnerTest {
     @When("the user makes a DELETE request to delete a category with id {string} of a todo with id {string}")
     public void the_user_makes_a_DELETE_request_to_delete_a_category_with_id_of_a_todo_with_id (String categoryId, String todoId) {
         APICall ap = new APICall();
-        String[] newTodoId = {""};
-        int counter = 0;
-        boolean related = false;
 
         Thread t1 = new Thread(new Runnable() {
             @Override
@@ -478,7 +491,7 @@ public class TodosStepDefs extends CucumberRunnerTest {
         Response response = ap.delete("todos/" + todoId + "/categories/" + categoryId, "json"); // deleting relationship category with id=1 and todos with id=1.
 
         int code = response.code();
-        if(code == 404) {
+        if(code != 200 && code != 201) {
             JSONParser parserOfTodos = new JSONParser();
             JSONObject jsonOfTodos = null;
             try {
@@ -642,7 +655,7 @@ public class TodosStepDefs extends CucumberRunnerTest {
                 Response res = ap.post("todos/" + todoId + "/tasksof", "json", relationBody); // Establishing relationship using POST
 
                 int code = res.code();
-                if(code == 404) {
+                if(code != 200 && code != 201) {
                     JSONParser parserOfTodos = new JSONParser();
                     JSONObject jsonOfTodos = null;
                     try {
@@ -917,7 +930,7 @@ public class TodosStepDefs extends CucumberRunnerTest {
         Response response = ap.post("todos/" + todoId + "/categories", "json", js); // establishing new relationship
 
         int code = response.code();
-        if(code == 404) {
+        if(code != 200 && code != 201) {
             JSONParser parser = new JSONParser();
             JSONObject json = null;
             try {

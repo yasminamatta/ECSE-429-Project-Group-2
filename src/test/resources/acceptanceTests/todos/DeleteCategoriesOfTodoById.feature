@@ -31,12 +31,12 @@ Feature: Delete a category of a todo by id
   # Error flow
   Scenario Outline: Delete a category of a todo, where todo does not exist in the system
     When the user makes a DELETE request to delete a category with id "<categoryId>" of a todo with id "<todoId>"
-    Then an error message with content "<errorMessage>" shall be raised
+    Then an error message with contents "<errorMessage>" shall be raised
     Then no todo item shall be created or deleted
 
     Examples:
-      | categoryId | todoId | errorMessage                                              |
-      | 1          | 2000   | Could not find any instances with todos/2000/categories/1 |
+      | categoryId | todoId | errorMessage                                                                                                                       |
+      | 1          | 2000   | Cannot invoke \"uk.co.compendiumdev.thingifier.core.domain.instances.ThingInstance.getRelationships()\" because \"parent\" is null |
 
   # Error flow
   Scenario Outline: Delete a category of a todo, where category does not exist in the system

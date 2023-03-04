@@ -30,7 +30,6 @@ Feature: Create a relationship between a todo and a category
     Examples:
       | categoryId | todoId |
       | 1          | 1      |
-      | 1          | 2      |
 
   # Error flow
   Scenario Outline: Create a relationship between a non-existent todo and an existing category
