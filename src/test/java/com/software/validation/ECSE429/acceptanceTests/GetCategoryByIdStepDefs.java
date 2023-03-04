@@ -36,7 +36,7 @@ public class GetCategoryByIdStepDefs extends CucumberRunnerTest {
         Runtime rt = Runtime.getRuntime();
         try {
             Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
-            Thread.sleep(3000);
+            Thread.sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
             Assert.assertEquals("Reset", "Error");

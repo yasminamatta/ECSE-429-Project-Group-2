@@ -43,12 +43,13 @@ public class PostProjectOfCategoryByIdStepDefs extends CucumberRunnerTest{
         Runtime rt = Runtime.getRuntime();
         try {
             Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
-            Thread.sleep(3000);
+            Thread.sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
             Assert.assertEquals("Reset", "Error");
         }
     }
+
 
     @Given("at least one category exists in the management system")
     public void at_least_one_category_exists_in_the_system() {
@@ -188,35 +189,8 @@ public class PostProjectOfCategoryByIdStepDefs extends CucumberRunnerTest{
         }
 
         int code = response.code();
-        if (code == 200 | code == 201) {
+        if (code != 200 && code != 201) {
 
-            try {
-                JSONParser parser = new JSONParser();
-                JSONObject json = (JSONObject) parser.parse(responsePost);
-
-
-                Response size = ap.get("categories/" + json.get("id"), "json");
-                JSONParser parserResponse = new JSONParser();
-                JSONObject jsonResponse = null;
-                try {
-                    jsonResponse = (JSONObject) parserResponse.parse(size.body().string()); // parse body into created JSON object
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    size.body().close();
-                }
-                Assert.assertEquals(201, response.code()); // relationship should be created
-
-                categoryList = new ArrayList<>();
-                JSONArray categories = ((JSONArray) (jsonResponse.get("categories")));
-                for (int t = 0; t < categories.size(); t++) {
-                    categoryList.add((JSONObject) categories.get(t));
-                }
-
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        } else {
             JSONParser parser = new JSONParser();
             JSONObject json = null;
             try {
@@ -269,34 +243,7 @@ public class PostProjectOfCategoryByIdStepDefs extends CucumberRunnerTest{
         }
 
         int code = response.code();
-        if (code == 200 | code == 201) {
-
-            try {
-                JSONParser parser = new JSONParser();
-                JSONObject json = (JSONObject) parser.parse(responsePost);
-
-                Response size = ap.get("categories/" + json.get("id"), "json");
-                JSONParser parserResponse = new JSONParser();
-                JSONObject jsonResponse = null;
-                try {
-                    jsonResponse = (JSONObject) parserResponse.parse(size.body().string()); // parse body into created JSON object
-                } catch (Exception e) {
-                    e.printStackTrace();
-                } finally {
-                    size.body().close();
-                }
-                Assert.assertEquals(201, response.code());
-
-                categoryList = new ArrayList<>();
-                JSONArray categories = ((JSONArray) (jsonResponse.get("categories")));
-                for (int t = 0; t < categories.size(); t++) {
-                    categoryList.add((JSONObject) categories.get(t));
-                }
-
-            } catch (ParseException e) {
-                e.printStackTrace();
-            }
-        } else {
+        if (code != 200 && code != 201) {
             JSONParser parser = new JSONParser();
             JSONObject json = null;
             try {
