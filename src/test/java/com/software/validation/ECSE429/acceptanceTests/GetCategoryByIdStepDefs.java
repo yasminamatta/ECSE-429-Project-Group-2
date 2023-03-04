@@ -43,6 +43,9 @@ public class GetCategoryByIdStepDefs extends CucumberRunnerTest {
         }
     }
 
+
+
+
     @Given("at least one category exists in the system")
     public void at_least_one_category_exists_in_the_system() {
         APICall ap = new APICall();

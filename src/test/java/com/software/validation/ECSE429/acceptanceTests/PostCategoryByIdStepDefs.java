@@ -22,9 +22,6 @@ public class PostCategoryByIdStepDefs extends CucumberRunnerTest{
 
     List<JSONObject> categoryList = null;
     String error = null;
-    int previousTotalCategories = 0;
-    int latestTotalCategories = 0;
-
     @Given("the Todo Manager system runs")
     public void the_TodoManager_system_runs() {
         Runtime rt = Runtime.getRuntime();
@@ -42,12 +39,13 @@ public class PostCategoryByIdStepDefs extends CucumberRunnerTest{
         Runtime rt = Runtime.getRuntime();
         try {
             Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
-            Thread.sleep(3000);
+            Thread.sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
             Assert.assertEquals("Reset", "Error");
         }
     }
+
 
     @Given("a minimum of one category exists in the system")
     public void a_minimum_of_one_category_exists_in_the_system() {
@@ -86,7 +84,6 @@ public class PostCategoryByIdStepDefs extends CucumberRunnerTest{
                 } finally {
                     size.body().close();
                 }
-                previousTotalCategories = ((JSONArray) (json.get("categories"))).size();
             }
         });
 
@@ -167,8 +164,7 @@ public class PostCategoryByIdStepDefs extends CucumberRunnerTest{
                 } finally {
                     size2.body().close();
                 }
-                latestTotalCategories = ((JSONArray) (json.get("categories"))).size(); // add the new size of categories to array
-            }
+                }
         });
 
         t2.start();

@@ -51,6 +51,9 @@ public class PostProjectOfCategoryByIdStepDefs extends CucumberRunnerTest{
     }
 
 
+
+
+
     @Given("at least one category exists in the management system")
     public void at_least_one_category_exists_in_the_system() {
         APICall ap = new APICall();
@@ -208,7 +211,7 @@ public class PostProjectOfCategoryByIdStepDefs extends CucumberRunnerTest{
         Thread t1 = new Thread(new Runnable() { //Allows for the GET and POST methods to run in a sequence
             @Override
             public void run() {
-                Response size = ap.get("categories/" + categoryId, "json");
+                Response size = ap.get("categories", "json");
                 JSONParser parser = new JSONParser();
                 JSONObject json = null;
                 try {
@@ -257,7 +260,7 @@ public class PostProjectOfCategoryByIdStepDefs extends CucumberRunnerTest{
         Thread t2 = new Thread(new Runnable() {
             @Override
             public void run() {
-                Response size2 = ap.get("categories/" + categoryId, "json");
+                Response size2 = ap.get("categories", "json");
                 JSONParser parser = new JSONParser();
                 JSONObject json = null;
                 try {
@@ -322,7 +325,7 @@ public class PostProjectOfCategoryByIdStepDefs extends CucumberRunnerTest{
 
     @And("no category shall be created or deleted")
     public void no_category_shall_be_created_or_deleted(){
-        Assert.assertEquals(0, previousTotalCategories-latestTotalCategories);
+        Assert.assertEquals(0, Math.abs(previousTotalCategories-latestTotalCategories));
     }
 
     @Then("an error message with content {string} shall be raised by the system")

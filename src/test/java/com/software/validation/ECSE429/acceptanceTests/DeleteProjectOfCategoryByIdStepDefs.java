@@ -52,6 +52,8 @@ public class DeleteProjectOfCategoryByIdStepDefs extends CucumberRunnerTest {
 
 
 
+
+
     @Given("at least one category exists on the server")
     public void at_least_one_category_exists_in_the_system() {
         APICall ap = new APICall();
@@ -208,7 +210,7 @@ public class DeleteProjectOfCategoryByIdStepDefs extends CucumberRunnerTest {
 
     @And("no category shall be created nor deleted")
     public void no_category_shall_be_created_nor_deleted(){
-        Assert.assertEquals(0, previousTotalCategories-latestTotalCategories);
+        Assert.assertEquals(0, Math.abs(previousTotalCategories-latestTotalCategories));
     }
 
     @Then("an error with content {string} shall be raised")
