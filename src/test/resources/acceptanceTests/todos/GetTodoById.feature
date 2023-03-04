@@ -7,7 +7,7 @@ Feature: Get todo by id
 
   # Normal flow
   Scenario Outline: Get a todo by id successfully
-    When the user makes a query to get a todo item by ID "<id>"
+    When the user makes GET request to get a todo item by ID "<id>"
     Then one todo item shall be returned
     Then the todo shall have id "<id>", title "<title>", and doneStatus "<doneStatus>"
 
@@ -18,7 +18,7 @@ Feature: Get todo by id
 
   # Alternative flow
   Scenario Outline: Get a todo by non-existing id
-    When the user makes a query to get a todo item by ID "<id>"
+    When the user makes GET request to get a todo item by ID "<id>"
     Then no todo item shall be returned
     Then an error message with content "<errorMessage>" shall be raised
 
@@ -29,7 +29,7 @@ Feature: Get todo by id
 
   # Error flow
   Scenario Outline: Get a todo by invalid id
-    When the user makes a query to get a todo item by ID "<id>"
+    When the user makes GET request to get a todo item by ID "<id>"
     Then no todo item shall be returned
     Then an error message with content "<errorMessage>" shall be raised
 

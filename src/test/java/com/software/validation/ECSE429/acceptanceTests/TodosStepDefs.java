@@ -1,6 +1,7 @@
 package com.software.validation.ECSE429.acceptanceTests;
 
 import com.software.validation.ECSE429.api.APICall;
+import com.sun.source.tree.AssertTree;
 import io.cucumber.java.After;
 import io.cucumber.java.Before;
 import io.cucumber.java.en.Given;
@@ -25,6 +26,8 @@ public class TodosStepDefs extends CucumberRunnerTest {
     String error = null;
     int previousTotalTodos = -1;
     int latestTotalTodos = -1;
+
+    String responseCode;
 
 
 
@@ -51,6 +54,7 @@ public class TodosStepDefs extends CucumberRunnerTest {
             Assert.assertEquals("Reset", "Error");
         }
     }
+
 
     @Given("atleast one todo exists in the system")
     public void atleast_one_todo_exists_in_the_system() {
@@ -118,21 +122,30 @@ public class TodosStepDefs extends CucumberRunnerTest {
 
     }
 
-    @When("the user makes a query to get a todo item by ID {string}")
-    public void the_user_makes_a_query_to_get_a_todo_item_by_ID(String todoId) {
+    @When("the user makes GET request to get a todo item by ID {string}")
+    public void the_user_makes_GET_request_to_get_a_todo_item_by_ID(String todoId) {
         APICall ap = new APICall();
         Response response = ap.get("todos/" + todoId, "json"); // ID as path variable
         JSONParser parser = new JSONParser();
         JSONObject json = null;
         try {
-            json = (JSONObject) parser.parse(response.body().string());
+            if(response == null) {
+                responseCode = "null";
+            } else {
+                json = (JSONObject) parser.parse(response.body().string());
+            }
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
-            response.body().close();
+            if(response != null) {
+                response.body().close();
+            }
         }
 
-        int code = response.code();
+        int code = 0;
+        if(response != null) {
+            code = response.code();
+        }
 
         if (code == 200 || code == 201) {
             todosList = new ArrayList<>();
@@ -141,7 +154,9 @@ public class TodosStepDefs extends CucumberRunnerTest {
                 todosList.add((JSONObject) todos.get(t));
             }
         } else {
-            error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
+            if(json != null) {
+                error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
+            }
         }
     }
 
@@ -192,8 +207,8 @@ public class TodosStepDefs extends CucumberRunnerTest {
         }
     }
 
-    @When("the user makes a query to create a todo item with title {string} and description {string}")
-    public void the_user_makes_a_query_to_create_a_todo_item_with_title_and_description(String todoTitle, String todoDescription) {
+    @When("the user makes POST request to create a todo item with title {string} and description {string}")
+    public void the_user_makes_POST_request_to_create_a_todo_item_with_title_and_description(String todoTitle, String todoDescription) {
 
         APICall ap = new APICall();
         Thread t1 = new Thread(new Runnable() { //Allows for the called GET and POST methods to run in a sequence
@@ -228,14 +243,23 @@ public class TodosStepDefs extends CucumberRunnerTest {
 
         String responsePost = null;
         try {
-            responsePost = response.body().string();
+            if(response == null) {
+                responseCode = "null";
+            } else {
+                responsePost = response.body().string();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            response.body().close();
+            if(response != null) {
+                response.body().close();
+            }
         }
 
-        int code = response.code();
+        int code = 0;
+        if(response != null){
+            code = response.code();
+        }
         if (code == 200 | code == 201) {
 
             try {
@@ -317,8 +341,8 @@ public class TodosStepDefs extends CucumberRunnerTest {
 
 
 
-    @When("the user makes a query to create a todo item with only title {string}")
-    public void the_user_makes_a_query_to_create_a_todo_item_with_only_title(String todoTitle) {
+    @When("the user makes POST request to create a todo item with only title {string}")
+    public void the_user_makes_POST_request_to_create_a_todo_item_with_only_title(String todoTitle) {
 
         APICall ap = new APICall();
         Thread t1 = new Thread(new Runnable() { //Allows for the called GET and POST methods to run in a sequence
@@ -328,13 +352,19 @@ public class TodosStepDefs extends CucumberRunnerTest {
                 JSONParser parser = new JSONParser();
                 JSONObject json = null;
                 try {
-                    json = (JSONObject) parser.parse(size.body().string());
+                    if(size != null) {
+                        json = (JSONObject) parser.parse(size.body().string());
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
-                    size.body().close();
+                    if(size != null) {
+                        size.body().close();
+                    }
                 }
-                previousTotalTodos = ((JSONArray) (json.get("todos"))).size();
+                if(json != null) {
+                    previousTotalTodos = ((JSONArray) (json.get("todos"))).size();
+                }
             }
         });
 
@@ -352,14 +382,23 @@ public class TodosStepDefs extends CucumberRunnerTest {
 
         String responsePost = null;
         try {
-            responsePost = response.body().string();
+            if(response == null) {
+                responseCode = "null";
+            } else {
+                responsePost = response.body().string();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-            response.body().close();
+            if(response != null) {
+                response.body().close();
+            }
         }
 
-        int code = response.code();
+        int code = 0;
+        if(response != null){
+            code = response.code();
+        }
         if (code == 200 | code == 201) {
 
             try {
@@ -394,11 +433,15 @@ public class TodosStepDefs extends CucumberRunnerTest {
             JSONParser parser = new JSONParser();
             JSONObject json = null;
             try {
-                json = (JSONObject) parser.parse(responsePost);
+                if(responsePost != null) {
+                    json = (JSONObject) parser.parse(responsePost);
+                }
             } catch (ParseException e) {
                 throw new RuntimeException(e);
             }
-            error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
+            if(json != null) {
+                error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
+            }
         }
 
         Thread t2 = new Thread(new Runnable() {
@@ -408,13 +451,19 @@ public class TodosStepDefs extends CucumberRunnerTest {
                 JSONParser parser = new JSONParser();
                 JSONObject json = null;
                 try {
-                    json = (JSONObject) parser.parse(size2.body().string());
+                    if(size2 != null) {
+                        json = (JSONObject) parser.parse(size2.body().string());
+                    }
                 } catch (Exception e) {
                     e.printStackTrace();
                 } finally {
-                    size2.body().close();
+                    if(size2 != null) {
+                        size2.body().close();
+                    }
                 }
-                latestTotalTodos = ((JSONArray) (json.get("todos"))).size(); // add the new size of todos to array
+                if(json != null) {
+                    latestTotalTodos = ((JSONArray) (json.get("todos"))).size(); // add the new size of todos to array
+                }
             }
         });
 
@@ -453,7 +502,10 @@ public class TodosStepDefs extends CucumberRunnerTest {
             response.body().close();
         }
 
-        int code = response.code();
+        int code = 0;
+        if(response != null){
+            code = response.code();
+        }
         Assert.assertEquals(200, code); // check if the HTML response code is a success or not
         int size = ((JSONArray)(json.get("categories"))).size();
         Assert.assertEquals(1, size); // only one category is related to the todos by default
@@ -471,13 +523,19 @@ public class TodosStepDefs extends CucumberRunnerTest {
                 JSONParser parserOfTodos = new JSONParser();
                 JSONObject jsonOfTodos = null;
                 try {
-                    jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
+                    if(responseOfTodos != null) {
+                        jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
+                    }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Assert.assertTrue(false);
                 } finally {
-                    responseOfTodos.body().close();
+                    if(responseOfTodos != null) {
+                        responseOfTodos.body().close();
+                    }
                 }
-                previousTotalTodos = ((JSONArray)(jsonOfTodos.get("todos"))).size();
+                if(jsonOfTodos != null) {
+                    previousTotalTodos = ((JSONArray) (jsonOfTodos.get("todos"))).size();
+                }
             }
         });
 
@@ -490,18 +548,29 @@ public class TodosStepDefs extends CucumberRunnerTest {
 
         Response response = ap.delete("todos/" + todoId + "/categories/" + categoryId, "json"); // deleting relationship category with id=1 and todos with id=1.
 
-        int code = response.code();
+        int code = 0;
+        if(response != null){
+            code = response.code();
+        } else {
+            responseCode = "null";
+        }
         if(code != 200 && code != 201) {
             JSONParser parserOfTodos = new JSONParser();
             JSONObject jsonOfTodos = null;
             try {
-                jsonOfTodos = (JSONObject) parserOfTodos.parse(response.body().string());
+                if(jsonOfTodos != null) {
+                    jsonOfTodos = (JSONObject) parserOfTodos.parse(response.body().string());
+                }
             } catch (Exception e) {
-                e.printStackTrace();
+                Assert.assertTrue(false);
             } finally {
-                response.body().close();
+                if(response != null) {
+                    response.body().close();
+                }
             }
-            error = (String) ((JSONArray) (jsonOfTodos.get("errorMessages"))).get(0);
+            if(jsonOfTodos != null) {
+                error = (String) ((JSONArray) (jsonOfTodos.get("errorMessages"))).get(0);
+            }
         }
 
 
@@ -513,13 +582,19 @@ public class TodosStepDefs extends CucumberRunnerTest {
                 JSONParser parserOfTodos = new JSONParser();
                 JSONObject jsonOfTodos = null;
                 try {
-                    jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
+                    if(responseOfTodos != null) {
+                        jsonOfTodos = (JSONObject) parserOfTodos.parse(responseOfTodos.body().string());
+                    }
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    Assert.assertTrue(false);
                 } finally {
-                    responseOfTodos.body().close();
+                    if(responseOfTodos != null) {
+                        responseOfTodos.body().close();
+                    }
                 }
-                latestTotalTodos = ((JSONArray)(jsonOfTodos.get("todos"))).size();
+                if(jsonOfTodos != null) {
+                    latestTotalTodos = ((JSONArray) (jsonOfTodos.get("todos"))).size();
+                }
             }
         });
 
@@ -579,7 +654,10 @@ public class TodosStepDefs extends CucumberRunnerTest {
                 // deleting relationship tasksOf between todos with id=1 and projects with id=1.
                 Response res = ap.delete("todos/" + todoId + "/tasksof/" + projectId, "json");
 
-                int code = res.code();
+                int code = 0;
+                if(res != null){
+                    code = res.code();
+                }
                 Assert.assertEquals(200, code); // check whether successful or not
             }
         });
@@ -654,7 +732,13 @@ public class TodosStepDefs extends CucumberRunnerTest {
 
                 Response res = ap.post("todos/" + todoId + "/tasksof", "json", relationBody); // Establishing relationship using POST
 
-                int code = res.code();
+                int code = 0;
+                if(res == null) {
+                    responseCode = "null";
+                } else {
+                    code = res.code();
+                }
+
                 if(code != 200 && code != 201) {
                     JSONParser parserOfTodos = new JSONParser();
                     JSONObject jsonOfTodos = null;
@@ -663,7 +747,9 @@ public class TodosStepDefs extends CucumberRunnerTest {
                     } catch (Exception e) {
                         e.printStackTrace();
                     } finally {
-                        res.body().close();
+                        if(res != null) {
+                            res.body().close();
+                        }
                     }
                     error = (String) ((JSONArray) (jsonOfTodos.get("errorMessages"))).get(0);
                 }
@@ -929,14 +1015,20 @@ public class TodosStepDefs extends CucumberRunnerTest {
         js.put("id", categoryId);
         Response response = ap.post("todos/" + todoId + "/categories", "json", js); // establishing new relationship
 
-        int code = response.code();
+        int code = 0;
+        if(response == null) {
+            responseCode = "null";
+        } else {
+            code = response.code();
+        }
+
         if(code != 200 && code != 201) {
             JSONParser parser = new JSONParser();
             JSONObject json = null;
             try {
                 json = (JSONObject) parser.parse(response.body().string());
             } catch (Exception e) {
-                throw new RuntimeException(e);
+                Assert.assertEquals("Parsed", "Not parsed");
             }
             error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
         }
@@ -1014,6 +1106,18 @@ public class TodosStepDefs extends CucumberRunnerTest {
         }
         Assert.assertTrue(((JSONArray)(json.get("categories"))).size() >= 1); // verify newly created relationship
         Assert.assertEquals(categoryId, ((JSONObject)(((JSONArray)(json.get("categories"))).get(0))).get("id"));
+    }
+
+
+
+    @Then("response should be {string}")
+    public void response_should_be (String response) {
+        Assert.assertEquals(responseCode, response);
+    }
+
+    @Given("the server is not running")
+    public void the_server_is_not_running(){
+        resetEnvironment();
     }
 
 
