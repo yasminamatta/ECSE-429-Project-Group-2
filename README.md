@@ -33,7 +33,7 @@
 
 4) Check logs in GitHub Actions tab
 
-### ![Detailed Test Report](https://ecse429-test-analysis.netlify.app/)
+### [Detailed Test Report](https://ecse429-test-analysis.netlify.app/)
 
 ## Deliverable 2:
 
@@ -51,7 +51,7 @@
 
 6) Run Cucumber Runner class, CucumberRunnerTest.java
 
-### ![Detailed Test Report](https://calmcumber.netlify.app/)
+### [Detailed Test Report](https://calmcumber.netlify.app/)
 
 
 
