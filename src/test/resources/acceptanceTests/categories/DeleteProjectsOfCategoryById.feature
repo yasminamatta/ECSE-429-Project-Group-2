@@ -1,4 +1,4 @@
-Feature: Delete Project related to Category
+Feature: Delete Project related to a Category by ID
 
   As a user, I want to delete a relationship between a category and a project so that I can manually change
   what projects are related to which categories
@@ -8,7 +8,7 @@ Feature: Delete Project related to Category
     Given at least one category exists on the server
     Given at least one project exists on the server
 
-   # Normal flow
+   # NORMAL FLOW
   Scenario Outline: Delete a project of a category by id successfully
     Given project with id "<projectId>" is assigned to a category with id "<categoryId>" in the system
     When the user requests to delete a project with id "<projectId>" of a category with id "<categoryId>"
@@ -19,7 +19,7 @@ Feature: Delete Project related to Category
       | categoryId | projectId |
       | 1          | 1         |
 
-  # Alternative flow
+  # ALTERNATE FLOW
   Scenario Outline: Delete a project from a category when not assigned to any category
     When the user requests to delete a project with id "<projectId>" of a category with id "<categoryId>"
     Then an error with content "<errorMessage>" shall be raised
@@ -29,7 +29,7 @@ Feature: Delete Project related to Category
       | categoryId | projectId | errorMessage                                              |
       | 2          | 1         | Could not find any instances with categories/2/projects/1 |
 
-  # Error flow
+  # ERROR FLOW
   Scenario Outline: Delete a project of a category, where project does not exist in the system
     When the user requests to delete a project with id "<projectId>" of a category with id "<categoryId>"
     Then an error with content "<errorMessage>" shall be raised

@@ -1,4 +1,4 @@
-Feature: Post Project Relationship to Category
+Feature: Post Project Relationship to a Category
 
   As a user, I want to create a relationship between a category and a project so that I can keep track of what projects are
   related to which categories

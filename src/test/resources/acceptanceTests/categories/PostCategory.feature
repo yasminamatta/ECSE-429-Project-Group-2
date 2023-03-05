@@ -1,12 +1,12 @@
 Feature: Post Category
-  As a user, I want to create a category with a body containing a specified set of parameters
+  As a user, I want to create a new category with a body containing a specified set of parameters
 
   Background:
     Given the Todo Manager system runs well
     Given more than one category exists in the system
 
     # NORMAL FLOW
-  Scenario Outline: Post a category successfully
+  Scenario Outline: Create a category successfully
     When the user creates a category with title "<title>" and description "<description>"
     Then one category is created and returned
     And the category shall have the title "<title>" and description "<description>"
