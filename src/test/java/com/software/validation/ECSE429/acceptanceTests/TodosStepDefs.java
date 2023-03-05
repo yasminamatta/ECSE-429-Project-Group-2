@@ -26,6 +26,7 @@ public class TodosStepDefs extends CucumberRunnerTest {
     String error = null;
     int previousTotalTodos = -1;
     int latestTotalTodos = -1;
+    Helper help = new Helper();
 
     String responseCode;
 
@@ -33,26 +34,12 @@ public class TodosStepDefs extends CucumberRunnerTest {
 
     @Given("the server is running")
     public void the_server_is_running() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
-            Thread.sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.assertEquals("Running", "Error");
-        }
+        help.the_server_is_running();
     }
 
     @After
     public void resetEnvironment() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
-            Thread.sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.assertEquals("Reset", "Error");
-        }
+        help.resetEnvironment();
     }
 
 
@@ -1124,7 +1111,7 @@ public class TodosStepDefs extends CucumberRunnerTest {
 
     @Given("the server is not running")
     public void the_server_is_not_running(){
-        resetEnvironment();
+        help.resetEnvironment();
     }
 
 

@@ -45,11 +45,7 @@
 
 3) Install Cucumber for Java
 
-4) Create run configurations for Gherkin script, specify feature files path as `src\test\resources\acceptanceTests`
-
-5) Set random seed value as program arguments so tests run in random order: `--order random:<SEED_VALUE>` like `--order random:1234`
-
-6) Run Cucumber Runner class, CucumberRunnerTest.java
+4) Run Cucumber Runner class, CucumberRunnerTest.java
 
 ### [Detailed Test Report](https://calmcumber.netlify.app/)
 

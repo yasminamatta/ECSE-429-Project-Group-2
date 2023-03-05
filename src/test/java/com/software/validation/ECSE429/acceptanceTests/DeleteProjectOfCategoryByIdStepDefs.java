@@ -25,34 +25,17 @@ public class DeleteProjectOfCategoryByIdStepDefs extends CucumberRunnerTest {
     String error = null;
     int previousTotalCategories = 0;
     int latestTotalCategories = 0;
+    Helper help = new Helper();
 
-    @Given("the server is running normally")
-    public void the_TodoManager_system_runs_normally() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
-            Thread.sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.assertEquals("Running", "Error");
-        }
+    @Given("the server is running")
+    public void the_server_is_running() {
+        help.the_server_is_running();
     }
 
     @After
     public void resetEnvironment() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
-            Thread.sleep(3000);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.assertEquals("Reset", "Error");
-        }
+        help.resetEnvironment();
     }
-
-
-
-
 
     @Given("at least one category exists on the server")
     public void at_least_one_category_exists_in_the_system() {
