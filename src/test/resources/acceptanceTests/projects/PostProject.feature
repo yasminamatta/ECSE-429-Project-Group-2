@@ -14,7 +14,7 @@ Feature: Create a project
             | foo   | true      | false  | bar         | [{1}]     |
 
     # Alternative flow
-    Scenario: Create a project with only title and other attributes are set to their defauly values 
+    Scenario: Create a project with only title and other attributes are set to their defauly values
         When the user makes a query to create a project item with title "<title>"
         Then one project item shall be created and returned
         And completed should be set to "<completed>", active "<active>", description "<description>", tasks "<tasks>"

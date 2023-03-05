@@ -7,7 +7,7 @@ Feature: Create a todo
 
   # Normal flow
   Scenario Outline: Create a todo successfully
-    When the user makes a query to create a todo item with title "<title>" and description "<description>"
+    When the user makes POST request to create a todo item with title "<title>" and description "<description>"
     Then one todo item shall be created and returned
 
     Examples:
@@ -17,7 +17,7 @@ Feature: Create a todo
 
   # Alternate flow
   Scenario Outline: Create a todo with only title specified and others fields are set to their default values implicitly
-    When the user makes a query to create a todo item with only title "<title>"
+    When the user makes POST request to create a todo item with only title "<title>"
     Then one todo item shall be created and returned
     Then description shall be set to "<description>" and doneStatus to "<doneStatus>"
 
@@ -28,7 +28,7 @@ Feature: Create a todo
 
   # Error flow
   Scenario Outline: Create a todo with empty title field
-    When the user makes a query to create a todo item with title "<title>" and description "<description>"
+    When the user makes POST request to create a todo item with title "<title>" and description "<description>"
     Then no todo item shall be created
     Then an error message with content "<errorMessage>" shall be raised
 

@@ -5,11 +5,13 @@
 
 ## Group Members: Yasmina Matta, Yash Khapre, Himel Saha
 
-## Requirements to run test suite:
+## Deliverable 1:
+
+### Requirements to run test suite:
 1) JDK 17
 2) Maven 3.8.6
 
-## How to run tests locally (Linux only):
+### How to run JUnit tests locally (Linux only):
 
 1) Clone the GitHub Repository to your local system.
 
@@ -21,26 +23,36 @@
 
 5) The test results shall be displayed in the command line output, including any test failures!
 
-## How to run tests on cloud (cross-platform):
+### How to run JUnit tests on cloud (cross-platform):
 
-1) Go to the repository that you want to copy on Github.
+1) Fork the repository.
 
-2) Click the "Fork" button in the top right corner of the page.
+2) Clone the forked repository to your local machine: `git clone [URL of the forked repository]`
 
-3) Choose the account you want to fork the repository to.
+3) Make a commit to trigger test run
 
-4) The repository will now be forked to your own Github account and you will be taken to a page displaying the forked repository.
+4) Check logs in GitHub Actions tab
 
-5) To clone the forked repository to your local machine, click the "Clone or download" button and copy the URL.
+### [Detailed Test Report](https://ecse429-test-analysis.netlify.app/)
 
-6) Open your terminal or command line and navigate to the directory where you want to store the repository.
+## Deliverable 2:
 
-7) Run the following command to clone the repository: `git clone [URL of the forked repository]`
+### How to run JUnit tests locally (Linux only):
 
-8) The repository will now be cloned to your local machine (cross-platform) and you can make changes to it as you please.
+1) Clone the GitHub Repository to your local system
 
-9) Make commit to trigger test run
+2) Open the project in an IDE
 
-10) Check logs in Github Actions tab
+3) Install Cucumber for Java
+
+4) Create run configurations for Gherkin script, specify feature files path as `src\test\resources\acceptanceTests`
+
+5) Set random seed value as program arguments so tests run in random order: `--order random:<SEED_VALUE>` like `--order random:1234`
+
+6) Run Cucumber Runner class, CucumberRunnerTest.java
+
+### [Detailed Test Report](https://calmcumber.netlify.app/)
+
+
 
 

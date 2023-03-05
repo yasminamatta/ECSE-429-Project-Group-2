@@ -1,6 +1,7 @@
 package com.software.validation.ECSE429.acceptanceTests;
 
 import com.software.validation.ECSE429.api.APICall;
+import io.cucumber.java.After;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -13,7 +14,7 @@ import org.junit.Assert;
 import java.util.ArrayList;
 import java.util.List;
 
-public class GetCategoryByIDStepDefs extends CucumberRunnerTest {
+public class GetCategoryByIdStepDefs extends CucumberRunnerTest {
 
     List<JSONObject> categoryList = null;
     String error = null;
@@ -23,12 +24,27 @@ public class GetCategoryByIDStepDefs extends CucumberRunnerTest {
         Runtime rt = Runtime.getRuntime();
         try {
             Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
-            Thread.sleep(4000);
+            Thread.sleep(2000);
         } catch (Exception e) {
             e.printStackTrace();
-            Assert.assertEquals("Server", "error");
+            Assert.assertEquals("Running", "Error");
         }
     }
+
+    @After
+    public void resetEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
+            Thread.sleep(2000);
+        } catch (Exception e) {
+            e.printStackTrace();
+            Assert.assertEquals("Reset", "Error");
+        }
+    }
+
+
+
 
     @Given("at least one category exists in the system")
     public void at_least_one_category_exists_in_the_system() {
@@ -49,8 +65,6 @@ public class GetCategoryByIDStepDefs extends CucumberRunnerTest {
 
         int code = response.code();
         Assert.assertEquals(200, code);
-        System.out.println("GET categories -- TEST PASSED");
-
     }
 
     @When("the user initiates the query of the category with ID {string}")
