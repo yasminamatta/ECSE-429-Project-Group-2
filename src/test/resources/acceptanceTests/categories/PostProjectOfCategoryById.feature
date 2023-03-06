@@ -4,7 +4,7 @@ Feature: Post Project Relationship to a Category
   related to which categories
 
   Background:
-    Given the Todo Manager system is running normally
+    Given the server is running
     Given at least one category exists in the management system
     Given at least one project exists in the management system
 

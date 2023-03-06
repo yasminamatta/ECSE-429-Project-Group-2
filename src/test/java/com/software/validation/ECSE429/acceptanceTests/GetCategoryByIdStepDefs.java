@@ -18,33 +18,14 @@ public class GetCategoryByIdStepDefs extends CucumberRunnerTest {
 
     List<JSONObject> categoryList = null;
     String error = null;
+    Helper help = new Helper();
 
-    @Given("the Todo Manager system is running")
-    public void the_TodoManager_system_is_running() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
-            Thread.sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.assertEquals("Running", "Error");
-        }
-    }
+
 
     @After
     public void resetEnvironment() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
-            Thread.sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.assertEquals("Reset", "Error");
-        }
+        help.resetEnvironment();
     }
-
-
-
 
     @Given("at least one category exists in the system")
     public void at_least_one_category_exists_in_the_system() {

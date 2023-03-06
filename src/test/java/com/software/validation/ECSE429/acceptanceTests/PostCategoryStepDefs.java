@@ -25,33 +25,13 @@ public class PostCategoryStepDefs extends CucumberRunnerTest{
     String error = null;
     int previousTotalCategories = 0;
     int latestTotalCategories = 0;
+    Helper help = new Helper();
 
-    @Given("the Todo Manager system runs well")
-    public void the_TodoManager_system_runs_well() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
-            Thread.sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.assertEquals("Running", "Error");
-        }
-    }
 
     @After
     public void resetEnvironment() {
-        Runtime rt = Runtime.getRuntime();
-        try {
-            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
-            Thread.sleep(2000);
-        } catch (Exception e) {
-            e.printStackTrace();
-            Assert.assertEquals("Reset", "Error");
-        }
+        help.resetEnvironment();
     }
-
-
-
 
     @Given("more than one category exists in the system")
     public void more_than_one_category_exists_in_the_system() {
