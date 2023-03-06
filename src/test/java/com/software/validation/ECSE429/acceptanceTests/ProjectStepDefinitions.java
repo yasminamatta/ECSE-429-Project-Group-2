@@ -22,8 +22,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 public class ProjectStepDefinitions extends CucumberRunnerTest {
     List<JSONObject> projectList = null;
     String error = null;
-    int previousTotalProject = -1;
-    int latestTotatProject = -1;
+    int previousTotalProjects = -1;
+    int latestTotalProjects = -1;
     String responseCode;
 
 
@@ -102,6 +102,277 @@ public class ProjectStepDefinitions extends CucumberRunnerTest {
             Assert.assertEquals(completed, complete);
             Assert.assertEquals(isActive, active);
 
+        }
+    }
+
+
+    @When("the user makes POST request to create a project item with title {string} and description {string}")
+    public void the_user_makes_POST_request_to_create_a_project_item_with_title_and_description(String projectTitle, String projectDescription) {
+
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() { //Allows for the called GET and POST methods to run in a sequence
+            @Override
+            public void run() {
+                Response size = ap.get("projects", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                previousTotalProjects = ((JSONArray) (json.get("projects"))).size();
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join(); // allows for GET to be completed first, before then doing the POST method
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
+        js.put("title", projectTitle);
+        js.put("description", projectDescription);
+        Response response = ap.post("projects", "json", js);
+
+        String responsePost = null;
+        try {
+            if(response == null) {
+                responseCode = "null";
+            } else {
+                responsePost = response.body().string();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(response != null) {
+                response.body().close();
+            }
+        }
+
+        int code = 0;
+        if(response != null){
+            code = response.code();
+        }
+        if (code == 200 | code == 201) {
+
+            try {
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(responsePost);
+
+
+                Response size = ap.get("projects/" + json.get("id"), "json");
+                JSONParser parserResponse = new JSONParser();
+                JSONObject jsonResponse = null;
+                try {
+                    jsonResponse = (JSONObject) parserResponse.parse(size.body().string()); // parse body into created JSON object
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                Assert.assertEquals(201, response.code());
+
+
+                projectList = new ArrayList<>();
+                JSONArray todos = ((JSONArray) (jsonResponse.get("projects")));
+                for (int t = 0; t < todos.size(); t++) {
+                    projectList.add((JSONObject) todos.get(t));
+                }
+
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            JSONParser parser = new JSONParser();
+            JSONObject json = null;
+            try {
+                json = (JSONObject) parser.parse(responsePost);
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
+        }
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("projects", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    json = (JSONObject) parser.parse(size2.body().string());
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size2.body().close();
+                }
+                latestTotalProjects = ((JSONArray) (json.get("projects"))).size(); // add the new size of todos to array
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+    }
+
+    @Then("one project item shall be created and returned")
+    public void one_project_item_shall_be_created_and_returned() {
+        Assert.assertEquals(1, latestTotalProjects - previousTotalProjects);
+    }
+
+    @When("the user makes POST request to create a project item with only title {string}")
+    public void the_user_makes_POST_request_to_create_a_project_item_with_only_title(String projectTitle) {
+
+        APICall ap = new APICall();
+        Thread t1 = new Thread(new Runnable() { //Allows for the called GET and POST methods to run in a sequence
+            @Override
+            public void run() {
+                Response size = ap.get("projects", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    if(size != null) {
+                        json = (JSONObject) parser.parse(size.body().string());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if(size != null) {
+                        size.body().close();
+                    }
+                }
+                if(json != null) {
+                    previousTotalProjects = ((JSONArray) (json.get("projects"))).size();
+                }
+            }
+        });
+
+        t1.start();
+        try {
+            t1.join(); // allows for GET to be completed first, before then doing the POST method
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+        JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
+        js.put("title", projectTitle);
+        Response response = ap.post("projects", "json", js);
+
+        String responsePost = null;
+        try {
+            if(response == null) {
+                responseCode = "null";
+            } else {
+                responsePost = response.body().string();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if(response != null) {
+                response.body().close();
+            }
+        }
+
+        int code = 0;
+        if(response != null){
+            code = response.code();
+        }
+        if (code == 200 | code == 201) {
+
+            try {
+                JSONParser parser = new JSONParser();
+                JSONObject json = (JSONObject) parser.parse(responsePost);
+
+
+                Response size = ap.get("projects/" + json.get("id"), "json");
+                JSONParser parserResponse = new JSONParser();
+                JSONObject jsonResponse = null;
+                try {
+                    jsonResponse = (JSONObject) parserResponse.parse(size.body().string()); // parse body into created JSON object
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    size.body().close();
+                }
+                Assert.assertEquals(201, response.code());
+
+
+                projectList = new ArrayList<>();
+                JSONArray todos = ((JSONArray) (jsonResponse.get("projects")));
+                for (int t = 0; t < todos.size(); t++) {
+                    projectList.add((JSONObject) todos.get(t));
+                }
+
+
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+        } else {
+            JSONParser parser = new JSONParser();
+            JSONObject json = null;
+            try {
+                if(responsePost != null) {
+                    json = (JSONObject) parser.parse(responsePost);
+                }
+            } catch (ParseException e) {
+                throw new RuntimeException(e);
+            }
+            if(json != null) {
+                error = (String) ((JSONArray) (json.get("errorMessages"))).get(0);
+            }
+        }
+
+        Thread t2 = new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Response size2 = ap.get("projects", "json");
+                JSONParser parser = new JSONParser();
+                JSONObject json = null;
+                try {
+                    if(size2 != null) {
+                        json = (JSONObject) parser.parse(size2.body().string());
+                    }
+                } catch (Exception e) {
+                    e.printStackTrace();
+                } finally {
+                    if(size2 != null) {
+                        size2.body().close();
+                    }
+                }
+                if(json != null) {
+                    latestTotalProjects = ((JSONArray) (json.get("projects"))).size(); // add the new size of todos to array
+                }
+            }
+        });
+
+        t2.start();
+        try {
+            t2.join();
+        } catch (Exception e) {
+            assertEquals("Thread join failed", "Thread join successful");
+        }
+
+
+    }
+
+    @When("description shall be set to {string}, completed to {string}, active to {string}")
+    public void description_shall_be_set_to_completed_to_active_to(String todoDescription, String completed, String active) {
+        for(JSONObject obj: projectList) {
+            Assert.assertEquals(todoDescription, obj.get("description"));
+            Assert.assertEquals(completed, obj.get("completed"));
+            Assert.assertEquals(active, obj.get("active"));
         }
     }
 
