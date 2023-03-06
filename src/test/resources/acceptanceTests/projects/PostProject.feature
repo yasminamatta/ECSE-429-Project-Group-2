@@ -26,3 +26,12 @@ Feature: Create a project
       | staple papers |             | false     | false  |
       | make labels   |             | false     | false  |
 
+  # Error flow
+  Scenario Outline: Create a project with id
+    When the user makes POST request to create a project item with id "<id>"
+    Then an error message for project with content "<errorMessage>" shall be raised
+
+    Examples:
+      | id | errorMessage                                                       |
+      | 3  | Invalid Creation: Failed Validation: Not allowed to create with id |
+

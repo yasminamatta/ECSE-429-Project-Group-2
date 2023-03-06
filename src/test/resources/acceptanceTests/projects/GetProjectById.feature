@@ -21,7 +21,7 @@ Feature: Get project by id
     Then an error message for project with content "<errorMessage>" shall be raised
 
     Examples:
-      | id  | errorMessage                              |
+      | id  | errorMessage                                 |
       | 161 | Could not find an instance with projects/161 |
       | 224 | Could not find an instance with projects/224 |
 
@@ -31,5 +31,5 @@ Feature: Get project by id
     Then an error message for project with content "<errorMessage>" shall be raised
 
     Examples:
-      | id         | errorMessage                                     |
+      | id         | errorMessage                                        |
       | invalid-id | Could not find an instance with projects/invalid-id |
