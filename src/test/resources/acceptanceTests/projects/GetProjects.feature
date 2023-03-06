@@ -1,4 +1,4 @@
-Feature: Get project by id
+Feature: Get all projects
   As a user, I want to get all the projects so that I make a decision on what projects need to be added and which ones to remove
 
 
