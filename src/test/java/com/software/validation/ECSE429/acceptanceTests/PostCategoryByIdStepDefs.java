@@ -24,11 +24,6 @@ public class PostCategoryByIdStepDefs extends CucumberRunnerTest{
     String error = null;
     Helper help = new Helper();
 
-    @Given("the server is running")
-    public void the_server_is_running() {
-        help.the_server_is_running();
-    }
-
     @After
     public void resetEnvironment() {
         help.resetEnvironment();

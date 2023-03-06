@@ -27,11 +27,6 @@ public class DeleteProjectOfCategoryByIdStepDefs extends CucumberRunnerTest {
     int latestTotalCategories = 0;
     Helper help = new Helper();
 
-    @Given("the server is running")
-    public void the_server_is_running() {
-        help.the_server_is_running();
-    }
-
     @After
     public void resetEnvironment() {
         help.resetEnvironment();

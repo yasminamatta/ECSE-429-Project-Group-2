@@ -2,7 +2,7 @@ Feature: Post Category by ID
   As a user, I want to POST a category by ID so that I can update the body of a specific category of my choice.
 
   Background:
-    Given the Todo Manager system runs
+    Given the server is running
     Given a minimum of one category exists in the system
 
     # NORMAL FLOW

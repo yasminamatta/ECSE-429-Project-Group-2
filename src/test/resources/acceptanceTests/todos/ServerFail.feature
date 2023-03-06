@@ -1,4 +1,5 @@
 Feature: Tests fail if server is not running
+	The API calls must fail if the server is not running
 
   Background:
     Given the server is not running

@@ -2,7 +2,7 @@ Feature: Post Category
   As a user, I want to create a new category with a body containing a specified set of parameters
 
   Background:
-    Given the Todo Manager system runs well
+    Given the server is running
     Given more than one category exists in the system
 
     # NORMAL FLOW

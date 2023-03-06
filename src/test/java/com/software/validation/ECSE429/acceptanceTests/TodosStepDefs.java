@@ -27,21 +27,11 @@ public class TodosStepDefs extends CucumberRunnerTest {
     int previousTotalTodos = -1;
     int latestTotalTodos = -1;
     Helper help = new Helper();
-
     String responseCode;
-
-
-
-    @Given("the server is running")
-    public void the_server_is_running() {
-        help.the_server_is_running();
-    }
-
     @After
     public void resetEnvironment() {
         help.resetEnvironment();
     }
-
 
     @Given("atleast one todo exists in the system")
     public void atleast_one_todo_exists_in_the_system() {

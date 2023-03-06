@@ -4,7 +4,7 @@ Feature: Delete Project related to a Category by ID
   what projects are related to which categories
 
   Background:
-    Given the server is running normally
+    Given the server is running
     Given at least one category exists on the server
     Given at least one project exists on the server
 
