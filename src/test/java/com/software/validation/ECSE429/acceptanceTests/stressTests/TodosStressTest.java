@@ -1,4 +1,4 @@
-package com.software.validation.ECSE429.stressTests;
+package com.software.validation.ECSE429.acceptanceTests.stressTests;
 
 import com.software.validation.ECSE429.api.APICall;
 import okhttp3.Response;
