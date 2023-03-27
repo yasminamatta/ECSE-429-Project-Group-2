@@ -1,22 +1,27 @@
 package com.software.validation.ECSE429.acceptanceTests.stressTests;
 
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.*;
+import java.util.Arrays;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class SystemReport {
     public static void main(String[] args) {
-
+        try {
+            //initExcel();
+            FileInputStream inputStream = new FileInputStream("report.xlsx");
+            Workbook workbook = new XSSFWorkbook(inputStream);
+            Sheet sheet = workbook.getSheetAt(0);
+            report(sheet, workbook);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
-    public static void report() throws IOException {
-        // Get system memory statistics
-        String memstats = executeCommand("vmstat -s");
-        String[] memlines = memstats.split("\n");
-
-        // Get CPU usage statistics
-        String cpustats = executeCommand("vmstat 1 5");
-        String[] cpulines = cpustats.split("\n");
+    public static void report(Sheet sheet, Workbook workbook) throws IOException {
 
         // Get available memory statistics
         String availmem = executeCommand("free -h");
@@ -24,25 +29,79 @@ public class SystemReport {
 
         // Write the report to a CSV file
         PrintWriter writer = new PrintWriter(new FileWriter("report.csv", true));
-        writer.println("Memory statistics:");
-        for (String line : memlines) {
-            String[] fields = line.split("\\s+");
-            writer.println(String.join(",", fields));
-        }
-        writer.println();
 
         writer.println("CPU usage statistics:");
-        for (String line : cpulines) {
-            String[] fields = line.split("\\s+");
-            writer.println(String.join(",", fields));
-        }
-        writer.println();
+        String cpustats = executeCommand("vmstat -n 1 1");
+        String[] lines = cpustats.split("\n");
+        String[] headers = lines[1].trim().split("\\s+");
+        String[] values = lines[2].trim().split("\\s+");
+        int usIndex = Arrays.asList(headers).indexOf("us");
+        int syIndex = Arrays.asList(headers).indexOf("sy");
+
+        double cpuUsage = Double.parseDouble(values[usIndex]) + Double.parseDouble(values[syIndex]);
+        System.out.println("CPU usage: " + cpuUsage + "%");
+
+
+
 
         writer.println("Available memory statistics:");
-        for (String line : avmlines) {
-            String[] fields = line.split("\\s+");
-            writer.println(String.join(",", fields));
+        String[] fields = avmlines[1].split("\\s+"); // total, used, free, shared, buff/cache, available
+        writer.println(String.join(",", fields));
+
+
+        // ------------------------------- TOTAL MEMORY ----------------------------------
+        // Find the first available row in column
+        int rowNumTotalMem = 0;
+//        while (sheet.getRow(rowNumTotalMem) != null) {
+//            rowNumTotalMem++;
+//        }
+
+        int rowCount = sheet.getLastRowNum();
+
+        for (int i = 0; i <= rowCount; i++) {
+            Row row = sheet.getRow(i);
+            if (row == null) {
+                rowNumTotalMem = i;
+                break;
+            } else {
+                rowNumTotalMem = rowCount + 1;
+            }
         }
+
+
+        // Write the value to the first available cell in column
+        Row rowTotalMem = sheet.createRow(rowNumTotalMem);
+        Cell cellTotalMem = rowTotalMem.createCell(0);
+        cellTotalMem.setCellValue(fields[1]);
+
+
+        // ------------------------------- USED MEMORY ----------------------------------
+        // Write the value to the first available cell in column
+        Cell cellUsedMem = rowTotalMem.createCell(1);
+        cellUsedMem.setCellValue(fields[2]);
+
+
+        // ------------------------------- FREE MEMORY ----------------------------------
+        // Write the value to the first available cell in column
+        Cell cellFreeMem = rowTotalMem.createCell(2);
+        cellFreeMem.setCellValue(fields[3]);
+
+
+
+        // ------------------------------- CPU ----------------------------------
+        // Write the value to the first available cell in column
+        Cell cellCPU = rowTotalMem.createCell(3);
+        cellCPU.setCellValue(cpuUsage);
+
+
+
+
+
+
+        // Save the changes to the Excel file
+        FileOutputStream outputStream = new FileOutputStream("report.xlsx", true);
+        workbook.write(outputStream);
+        workbook.close();
 
         writer.close();
 
@@ -76,5 +135,32 @@ public class SystemReport {
         }
 
         return output.toString();
+    }
+
+    public static void initExcel() {
+        try {
+            XSSFWorkbook workbook = new XSSFWorkbook();
+            FileOutputStream out = new FileOutputStream(new File("report.xlsx"));
+
+            // Create a new sheet in the workbook
+            workbook.createSheet("Sheet1");
+            Row row = workbook.getSheet("Sheet1").createRow(0);
+
+            // Add titles to the first three columns
+            Cell cell = row.createCell(0);
+            cell.setCellValue("Total Memory");
+            cell = row.createCell(1);
+            cell.setCellValue("Used Memory");
+            cell = row.createCell(2);
+            cell.setCellValue("Free Memory");
+            cell = row.createCell(3);
+            cell.setCellValue("CPU Usage");
+
+            // Write the workbook to the output stream
+            workbook.write(out);
+            System.out.println("Excel file created successfully!");
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
