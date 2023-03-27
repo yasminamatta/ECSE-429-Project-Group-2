@@ -12,10 +12,12 @@ public class SystemReport {
     public static void main(String[] args) {
         try {
             //initExcel();
-            FileInputStream inputStream = new FileInputStream("report.xlsx");
-            Workbook workbook = new XSSFWorkbook(inputStream);
-            Sheet sheet = workbook.getSheetAt(0);
-            report(sheet, workbook);
+            for(int i = 0; i < 10; i++ ) {
+                FileInputStream inputStream = new FileInputStream("report.xlsx");
+                Workbook workbook = new XSSFWorkbook(inputStream);
+                Sheet sheet = workbook.getSheetAt(0);
+                report(sheet, workbook);
+            }
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
@@ -28,9 +30,9 @@ public class SystemReport {
         String[] avmlines = availmem.split("\n");
 
         // Write the report to a CSV file
-        PrintWriter writer = new PrintWriter(new FileWriter("report.csv", true));
+        //PrintWriter writer = new PrintWriter(new FileWriter("report.csv", true));
 
-        writer.println("CPU usage statistics:");
+        //writer.println("CPU usage statistics:");
         String cpustats = executeCommand("vmstat -n 1 1");
         String[] lines = cpustats.split("\n");
         String[] headers = lines[1].trim().split("\\s+");
@@ -44,29 +46,24 @@ public class SystemReport {
 
 
 
-        writer.println("Available memory statistics:");
+        //writer.println("Available memory statistics:");
         String[] fields = avmlines[1].split("\\s+"); // total, used, free, shared, buff/cache, available
-        writer.println(String.join(",", fields));
+        //writer.println(String.join(",", fields));
 
 
         // ------------------------------- TOTAL MEMORY ----------------------------------
         // Find the first available row in column
-        int rowNumTotalMem = 0;
-//        while (sheet.getRow(rowNumTotalMem) != null) {
-//            rowNumTotalMem++;
+        int rowNumTotalMem = sheet.getLastRowNum() + 1;
+
+//        for (int i = 0; i <= rowCount; i++) {
+//            Row row = sheet.getRow(i);
+//            if (row == null) {
+//                rowNumTotalMem = i;
+//                break;
+//            } else {
+//                rowNumTotalMem = rowCount + 1;
+//            }
 //        }
-
-        int rowCount = sheet.getLastRowNum();
-
-        for (int i = 0; i <= rowCount; i++) {
-            Row row = sheet.getRow(i);
-            if (row == null) {
-                rowNumTotalMem = i;
-                break;
-            } else {
-                rowNumTotalMem = rowCount + 1;
-            }
-        }
 
 
         // Write the value to the first available cell in column
@@ -99,11 +96,11 @@ public class SystemReport {
 
 
         // Save the changes to the Excel file
-        FileOutputStream outputStream = new FileOutputStream("report.xlsx", true);
+        FileOutputStream outputStream = new FileOutputStream("report.xlsx");
         workbook.write(outputStream);
         workbook.close();
 
-        writer.close();
+        //writer.close();
 
         // Display the report on the terminal
         System.out.println("System resource report saved to report.csv");
