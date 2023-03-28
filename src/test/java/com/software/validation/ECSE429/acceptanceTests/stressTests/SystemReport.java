@@ -29,9 +29,6 @@ public class SystemReport {
         String availmem = executeCommand("free -h");
         String[] avmlines = availmem.split("\n");
 
-        // Write the report to a CSV file
-        //PrintWriter writer = new PrintWriter(new FileWriter("report.csv", true));
-
         //writer.println("CPU usage statistics:");
         String cpustats = executeCommand("vmstat -n 1 1");
         String[] lines = cpustats.split("\n");
@@ -55,33 +52,46 @@ public class SystemReport {
         // Find the first available row in column
         int rowNumTotalMem = sheet.getLastRowNum() + 1;
 
-//        for (int i = 0; i <= rowCount; i++) {
-//            Row row = sheet.getRow(i);
-//            if (row == null) {
-//                rowNumTotalMem = i;
-//                break;
-//            } else {
-//                rowNumTotalMem = rowCount + 1;
-//            }
-//        }
-
-
         // Write the value to the first available cell in column
         Row rowTotalMem = sheet.createRow(rowNumTotalMem);
         Cell cellTotalMem = rowTotalMem.createCell(0);
-        cellTotalMem.setCellValue(fields[1]);
+        double totalMem = 0;
+        if(fields[1].contains("Gi")) {
+            fields[1] = fields[1].substring(0, fields[1].length() - 2);
+            totalMem = Double.valueOf(fields[1]) * 1024;
+        } else {
+            fields[1] = fields[1].substring(0, fields[1].length() - 2);
+            totalMem = Double.valueOf(fields[1]);
+        }
+        cellTotalMem.setCellValue(totalMem);
 
 
         // ------------------------------- USED MEMORY ----------------------------------
         // Write the value to the first available cell in column
         Cell cellUsedMem = rowTotalMem.createCell(1);
-        cellUsedMem.setCellValue(fields[2]);
+        double usedMem = 0;
+        if(fields[2].contains("Gi")) {
+            fields[2] = fields[2].substring(0, fields[2].length() - 2);
+            usedMem = Double.valueOf(fields[2]) * 1024;
+        } else {
+            fields[2] = fields[2].substring(0, fields[2].length() - 2);
+            usedMem = Double.valueOf(fields[2]);
+        }
+        cellUsedMem.setCellValue(usedMem);
 
 
         // ------------------------------- FREE MEMORY ----------------------------------
         // Write the value to the first available cell in column
         Cell cellFreeMem = rowTotalMem.createCell(2);
-        cellFreeMem.setCellValue(fields[3]);
+        double freeMem = 0;
+        if(fields[3].contains("Gi")) {
+            fields[3] = fields[3].substring(0, fields[3].length() - 2);
+            freeMem = Double.valueOf(fields[3]) * 1024;
+        } else {
+            fields[3] = fields[3].substring(0, fields[3].length() - 2);
+            freeMem = Double.valueOf(fields[3]);
+        }
+        cellFreeMem.setCellValue(freeMem);
 
 
 
@@ -96,9 +106,9 @@ public class SystemReport {
 
 
         // Save the changes to the Excel file
-        FileOutputStream outputStream = new FileOutputStream("report.xlsx");
-        workbook.write(outputStream);
-        workbook.close();
+//        FileOutputStream outputStream = new FileOutputStream("report.xlsx");
+//        workbook.write(outputStream);
+//        workbook.close();
 
         //writer.close();
 
@@ -145,13 +155,13 @@ public class SystemReport {
 
             // Add titles to the first three columns
             Cell cell = row.createCell(0);
-            cell.setCellValue("Total Memory");
+            cell.setCellValue("Total Memory (Mi)");
             cell = row.createCell(1);
-            cell.setCellValue("Used Memory");
+            cell.setCellValue("Used Memory (Mi)");
             cell = row.createCell(2);
-            cell.setCellValue("Free Memory");
+            cell.setCellValue("Free Memory (Mi)");
             cell = row.createCell(3);
-            cell.setCellValue("CPU Usage");
+            cell.setCellValue("CPU Usage %");
 
             // Write the workbook to the output stream
             workbook.write(out);
