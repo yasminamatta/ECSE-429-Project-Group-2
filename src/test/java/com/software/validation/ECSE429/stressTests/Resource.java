@@ -1,4 +1,4 @@
-package com.software.validation.ECSE429.acceptanceTests.stressTests;
+package com.software.validation.ECSE429.stressTests;
 import java.lang.management.ManagementFactory;
 import com.sun.management.OperatingSystemMXBean;
 
