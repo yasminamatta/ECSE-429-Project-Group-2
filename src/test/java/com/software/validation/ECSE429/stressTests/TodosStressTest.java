@@ -30,16 +30,15 @@ public class TodosStressTest {
             //inputStream = new FileInputStream("todos_polling.xlsx");
 
             Workbook workbook = new XSSFWorkbook(inputStream);
-            Sheet sheet = workbook.getSheetAt(0);
-            test.testInterval(sheet, workbook, "todos_interval.xlsx");
-            //test.testPolling(sheet, workbook, "todos_polling.xlsx");
+            test.testInterval(workbook, "todos_interval.xlsx");
+            //test.testPolling(workbook, "todos_polling.xlsx");
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
 
-    public void testInterval(Sheet sheet, Workbook workbook, String filename) {
+    public void testInterval(Workbook workbook, String filename) {
         for(int i=0; i < 10002; i++) {
 
             JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
@@ -52,68 +51,68 @@ public class TodosStressTest {
 
 
             if(i == 10) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
             else if(i == 20) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
             else if(i == 50) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
 
             else if(i == 100) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
             else if(i == 500) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
             else if(i == 1000) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
 
             else if(i == 2000) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
             else if(i == 3000) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
             else if(i == 4000) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
             else if(i == 5000) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
             else if(i == 10000) {
-                takeReadingPost(sheet, workbook, i);
-                takeReadingModify(sheet, workbook, i);
-                takeReadingDelete(sheet, workbook, i);
+                takeReadingPost(workbook, i);
+                takeReadingModify(workbook, i);
+                takeReadingDelete(workbook, i);
             }
 
         }
         writeClose(workbook, filename);
     }
 
-    public void testPolling(Sheet sheet, Workbook workbook, String filename) {
+    public void testPolling(Workbook workbook, String filename) {
         for(int i=0; i < 1000; i++) {
             JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
             js.put("title", "mcgill");
@@ -123,9 +122,9 @@ public class TodosStressTest {
                 throw new RuntimeException("Todo POST failed for " + i);
             }
 
-            takeReadingPost(sheet, workbook, i);
-            takeReadingModify(sheet, workbook, i);
-            takeReadingDelete(sheet, workbook, i);
+            takeReadingPost(workbook, i);
+            takeReadingModify(workbook, i);
+            takeReadingDelete(workbook, i);
 
             System.out.println(i);
         }
@@ -133,7 +132,7 @@ public class TodosStressTest {
     }
 
 
-    public void takeReadingPost(Sheet sheet, Workbook workbook, int i) {
+    public void takeReadingPost(Workbook workbook, int i) {
         final long start = System.currentTimeMillis();
         JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
         js.put("title", "mcgill");
@@ -151,7 +150,7 @@ public class TodosStressTest {
         }
     }
 
-    public void takeReadingDelete(Sheet sheet, Workbook workbook, int i) {
+    public void takeReadingDelete(Workbook workbook, int i) {
         final long start = System.currentTimeMillis();
 
         Response response = ap.delete("todos/" + String.valueOf(i+1), "json");
@@ -167,7 +166,7 @@ public class TodosStressTest {
         }
     }
 
-    public void takeReadingModify(Sheet sheet, Workbook workbook, int i) {
+    public void takeReadingModify(Workbook workbook, int i) {
         final long start = System.currentTimeMillis();
         JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
         js.put("description", "Todo number modified " + String.valueOf(i+1));
