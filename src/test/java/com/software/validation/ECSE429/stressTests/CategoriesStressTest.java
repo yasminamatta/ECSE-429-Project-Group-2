@@ -20,7 +20,7 @@ public class CategoriesStressTest {
     public static void main(String[] args) {
         SystemReport.initExcel("categories_interval.xlsx");
         //SystemReport.initExcel("categories_polling.xlsx");
-        TodosStressTest test = new TodosStressTest();
+        CategoriesStressTest test = new CategoriesStressTest();
         FileInputStream inputStream = null;
         try {
             inputStream = new FileInputStream("categories_interval.xlsx");
