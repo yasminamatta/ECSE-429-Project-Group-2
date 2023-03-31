@@ -27,7 +27,16 @@ public class SystemReport {
         }
     }
 
-    public static Row report(Sheet sheet, Workbook workbook, long start, long end) throws IOException {
+    public static Row report(Workbook workbook, long start, long end, String type) throws IOException {
+
+        Sheet sheet = null;
+        if(type.equals("Post")) {
+            sheet = workbook.getSheetAt(0);
+        } else if(type.equals("Modify")) {
+            sheet = workbook.getSheetAt(1);
+        } else {
+            sheet = workbook.getSheetAt(2);
+        }
 
         // Get available memory statistics
         String availmem = executeCommand("free -h");
@@ -42,7 +51,7 @@ public class SystemReport {
         int syIndex = Arrays.asList(headers).indexOf("sy");
 
         double cpuUsage = Double.parseDouble(values[usIndex]) + Double.parseDouble(values[syIndex]);
-        System.out.println("CPU usage: " + cpuUsage + "%");
+        //System.out.println("CPU usage: " + cpuUsage + "%");
 
 
 
@@ -142,14 +151,16 @@ public class SystemReport {
         return output.toString();
     }
 
-    public static void initExcel() {
+    public static void initExcel(String filename) {
         try {
             XSSFWorkbook workbook = new XSSFWorkbook();
-            FileOutputStream out = new FileOutputStream(new File("report.xlsx"));
+            FileOutputStream out = new FileOutputStream(new File(filename));
 
             // Create a new sheet in the workbook
-            workbook.createSheet("Sheet1");
-            Row row = workbook.getSheet("Sheet1").createRow(0);
+            workbook.createSheet("Post");
+            workbook.createSheet("Modify");
+            workbook.createSheet("Delete");
+            Row row = workbook.getSheet("Post").createRow(0);
 
             // Add titles to the first three columns
             Cell cell = row.createCell(0);
@@ -162,6 +173,35 @@ public class SystemReport {
             cell.setCellValue("CPU Usage");
             cell = row.createCell(4);
             cell.setCellValue("Current Time");
+
+            Row rowModify = workbook.getSheet("Modify").createRow(0);
+
+            // Add titles to the first three columns
+            Cell cellModify = rowModify.createCell(0);
+            cellModify.setCellValue("Time Elapsed");
+            cellModify = rowModify.createCell(1);
+            cellModify.setCellValue("Used Memory (Mi)");
+            cellModify = rowModify.createCell(2);
+            cellModify.setCellValue("Free Memory (Mi)");
+            cellModify = rowModify.createCell(3);
+            cellModify.setCellValue("CPU Usage");
+            cellModify = rowModify.createCell(4);
+            cellModify.setCellValue("Current Time");
+
+
+            Row rowDelete = workbook.getSheet("Delete").createRow(0);
+
+            // Add titles to the first three columns
+            Cell cellDelete = rowDelete.createCell(0);
+            cellDelete.setCellValue("Time Elapsed");
+            cellDelete = rowDelete.createCell(1);
+            cellDelete.setCellValue("Used Memory (Mi)");
+            cellDelete = rowDelete.createCell(2);
+            cellDelete.setCellValue("Free Memory (Mi)");
+            cellDelete = rowDelete.createCell(3);
+            cellDelete.setCellValue("CPU Usage");
+            cellDelete = rowDelete.createCell(4);
+            cellDelete.setCellValue("Current Time");
 
             // Write the workbook to the output stream
             workbook.write(out);
