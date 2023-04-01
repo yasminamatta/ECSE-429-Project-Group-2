@@ -21,6 +21,7 @@ public class ProjectsStressTest {
 
 
     public static void main(String[] args) {
+        setupEnvironment();
         SystemReport.initExcel("projects_interval.xlsx");
         //SystemReport.initExcel("projects_polling.xlsx");
         ProjectsStressTest test = new ProjectsStressTest();
@@ -35,12 +36,13 @@ public class ProjectsStressTest {
         } catch (Exception e) {
             e.printStackTrace();
         }
-
+        resetEnvironment();
     }
 
     public void testInterval(Workbook workbook, String filename) {
         for(int i=0; i < 10002; i++) {
 
+            // create new object at every iteration
             JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
             js.put("title", "mcgill");
             js.put("description", "Project number " + String.valueOf(i+1));
@@ -49,7 +51,7 @@ public class ProjectsStressTest {
                 throw new RuntimeException("Project POST failed for " + i);
             }
 
-
+            // take reading at certain interval
             if(i == 10) {
                 takeReadingPost(workbook, i);
                 takeReadingModify(workbook, i);
@@ -114,6 +116,8 @@ public class ProjectsStressTest {
 
     public void testPolling(Workbook workbook, String filename) {
         for(int i=0; i < 1000; i++) {
+
+            // create new object at every iteration
             JSONObject js = new JSONObject(); // Create new JSON object with system selected ID, and input body as fields
             js.put("title", "mcgill");
             js.put("description", "Project number " + String.valueOf(i+1));
@@ -122,6 +126,7 @@ public class ProjectsStressTest {
                 throw new RuntimeException("Project POST failed for " + i);
             }
 
+            // take reading at every iteration
             takeReadingPost(workbook, i);
             takeReadingModify(workbook, i);
             takeReadingDelete(workbook, i);
@@ -143,6 +148,7 @@ public class ProjectsStressTest {
         }
         final long end = System.currentTimeMillis();
 
+        // write to excel file
         try {
             Row row = SystemReport.report(workbook, start, end, "Post");
         } catch (IOException e) {
@@ -159,6 +165,7 @@ public class ProjectsStressTest {
         }
         final long end = System.currentTimeMillis();
 
+        // write to excel file
         try {
             Row row = SystemReport.report(workbook, start, end, "Delete");
         } catch (IOException e) {
@@ -176,6 +183,7 @@ public class ProjectsStressTest {
         }
         final long end = System.currentTimeMillis();
 
+        // write to excel file
         try {
             Row row = SystemReport.report(workbook, start, end, "Modify");
         } catch (IOException e) {
@@ -183,11 +191,36 @@ public class ProjectsStressTest {
         }
     }
     public void writeClose(Workbook workbook, String filename) {
+        // finalize workbook
         FileOutputStream outputStream = null;
         try {
             outputStream = new FileOutputStream(filename);
             workbook.write(outputStream);
             workbook.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // setup environment
+    public static void setupEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("java -jar runTodoManagerRestAPI-1.5.5.jar"); // Ensures that the API is ready to be tested
+            System.out.println("Setting up environment");
+            Thread.sleep(4000);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    // reset environment
+    public static void resetEnvironment() {
+        Runtime rt = Runtime.getRuntime();
+        try {
+            Process pr = rt.exec("fuser -k 4567/tcp"); // Shuts down the server once testing session is complete.
+            System.out.println("Resetting environment");
+            Thread.sleep(3000);
         } catch (Exception e) {
             e.printStackTrace();
         }

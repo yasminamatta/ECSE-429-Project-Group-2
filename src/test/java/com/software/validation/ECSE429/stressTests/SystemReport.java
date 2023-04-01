@@ -13,19 +13,6 @@ import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 public class SystemReport {
-    public static void main(String[] args) {
-        try {
-            //initExcel();
-            for(int i = 0; i < 10; i++ ) {
-                FileInputStream inputStream = new FileInputStream("report.xlsx");
-                Workbook workbook = new XSSFWorkbook(inputStream);
-                Sheet sheet = workbook.getSheetAt(0);
-                //report(sheet, workbook);
-            }
-        } catch (Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
 
     public static Row report(Workbook workbook, long start, long end, String type) throws IOException {
 
@@ -51,14 +38,9 @@ public class SystemReport {
         int syIndex = Arrays.asList(headers).indexOf("sy");
 
         double cpuUsage = Double.parseDouble(values[usIndex]) + Double.parseDouble(values[syIndex]);
-        //System.out.println("CPU usage: " + cpuUsage + "%");
 
-
-
-
-        //writer.println("Available memory statistics:");
         String[] fields = avmlines[1].split("\\s+"); // total, used, free, shared, buff/cache, available
-        //writer.println(String.join(",", fields));
+
 
 
         // ------------------------------- DURATION ----------------------------------
@@ -68,14 +50,7 @@ public class SystemReport {
         // Write the value to the first available cell in column
         Row rowTotalMem = sheet.createRow(rowNumTotalMem);
         Cell cellTotalMem = rowTotalMem.createCell(0);
-//        double totalMem = 0;
-//        if(fields[1].contains("Gi")) {
-//            fields[1] = fields[1].substring(0, fields[1].length() - 2);
-//            totalMem = Double.valueOf(fields[1]) * 1024;
-//        } else {
-//            fields[1] = fields[1].substring(0, fields[1].length() - 2);
-//            totalMem = Double.valueOf(fields[1]);
-//        }
+
         long duration = (end-start);
 
         cellTotalMem.setCellValue(duration);
